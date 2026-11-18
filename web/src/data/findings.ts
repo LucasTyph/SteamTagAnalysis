@@ -47,4 +47,4 @@ export function loadFindings(): Promise<Findings> {
   return promise;
 }
 
-export const REPO_URL = "https://github.com/LucasTyph/Game-Data";
+export const REPO_URL = "https://github.com/LucasTyph/SteamTagAnalysis";

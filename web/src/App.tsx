@@ -37,7 +37,7 @@ export function App() {
       <footer className="footer muted">
         Data from the Steam store, collected Nov 2026. Not affiliated with Valve. ·{" "}
         <NavLink to="/methodology">Methodology</NavLink> ·{" "}
-        <a href="https://github.com/LucasTyph/Game-Data">Source on GitHub</a>
+        <a href="https://github.com/LucasTyph/SteamTagAnalysis">Source on GitHub</a>
       </footer>
     </div>
   );

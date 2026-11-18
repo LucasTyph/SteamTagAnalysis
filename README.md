@@ -5,11 +5,11 @@
 An end-to-end data project: a resumable Python scraper for ~200k Steam apps, a statistical model of 60k reviewed
 games and 120M reviews, and a static website that queries the results in the browser.
 
-> **Live site: https://lucastyph.github.io/Game-Data/**
-> · [Tag Explorer](https://lucastyph.github.io/Game-Data/#/explore?tags=Tower%20Defense,VR)
-> · [Review Timelines](https://lucastyph.github.io/Game-Data/#/timelines?games=275850)
-> · [Findings](https://lucastyph.github.io/Game-Data/#/findings)
-> · [Methodology](https://lucastyph.github.io/Game-Data/#/methodology)
+> **Live site: https://lucastyph.github.io/SteamTagAnalysis/**
+> · [Tag Explorer](https://lucastyph.github.io/SteamTagAnalysis/#/explore?tags=Tower%20Defense,VR)
+> · [Review Timelines](https://lucastyph.github.io/SteamTagAnalysis/#/timelines?games=275850)
+> · [Findings](https://lucastyph.github.io/SteamTagAnalysis/#/findings)
+> · [Methodology](https://lucastyph.github.io/SteamTagAnalysis/#/methodology)
 
 | Tag Explorer | Review Timelines |
 |---|---|
@@ -84,6 +84,6 @@ Tests and lint: `ruff check . && pytest` and `cd web && npm run build`. CI runs 
 
 Scores use Steam's filtered review counts; tags are today's tags; delisted games are missing; mix effects are
 conservative (lower bounds) and correlational; a turning point's "nearest announcement" shows proximity, not cause.
-Details on the [methodology page](https://lucastyph.github.io/Game-Data/#/methodology). Not affiliated with Valve.
+Details on the [methodology page](https://lucastyph.github.io/SteamTagAnalysis/#/methodology). Not affiliated with Valve.
 
 See [PLAN.md](PLAN.md) for the original design and milestones.
