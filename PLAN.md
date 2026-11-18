@@ -131,7 +131,7 @@ All fetch state lives in SQLite (`data/steam.sqlite`), so stopping the process a
 - `news(appid, date, title, url, feed)`
 - Filters: game type only, `review_count ≥ 20`, no adult-only/test apps.
 
-**Tag relevance rule** (important for "obscure" combos): a tag counts for a game only if `rank ≤ 10` **or** `weight_share ≥ 0.3`. Both thresholds are config values, and the site's methodology page shows a sensitivity check.
+**Tag relevance rule** (important for "obscure" combos): a tag counts for a game only if it is in the game's **top 10 tags by votes** (about 9.3 tags per game). A vote-share cutoff was tested and dropped: shares decline so slowly that even the 20th tag has a median of 35% of the top tag's votes, so the cutoff readmitted almost everything (see `notebooks/01_explore_tags.ipynb`). The rank cutoff is a config value, and the site's methodology page shows a sensitivity check.
 
 ---
 
@@ -240,7 +240,7 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 ### M2 — Build + first exploration (1–2 days)
 - [x] Raw → clean tables in DuckDB (`stp build`, ~26 s)
 - [x] Notebook: tag distributions, choosing the tag relevance thresholds, sanity checks against the Steam store (`notebooks/01_explore_tags.ipynb`)
-- [ ] Final decision on the tag relevance rule (see notebook takeaways)
+- [x] Tag relevance rule decided: top 10 tags by votes only
 
 ### M3 — Tag-mix analysis (2–3 days)
 - [ ] Shrinkage, combo mining, additive model, interaction effects, CIs

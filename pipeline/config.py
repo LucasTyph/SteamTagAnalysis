@@ -61,8 +61,10 @@ class BuildConfig:
     min_reviews: int = 20
     # A tag counts for a game if it is in the game's top N tags by votes…
     tag_max_rank: int = 10
-    # …or has at least this share of the votes of the game's top tag.
-    tag_min_share: float = 0.3
+    # …or (optional) has at least this share of the top tag's votes. Off by default:
+    # vote shares decline slowly, so a share cutoff readmits almost every tag
+    # (see notebooks/01_explore_tags.ipynb).
+    tag_min_share: float | None = None
 
 
 BUILD = BuildConfig()

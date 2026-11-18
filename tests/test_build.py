@@ -39,6 +39,11 @@ def test_parse_game_fields():
     assert game.n_tags == 4
 
 
+def test_default_relevance_is_rank_only():
+    _, tags = parse_item(item(), BuildConfig(tag_max_rank=2))
+    assert [t.relevant for t in tags] == [True, True, False, False]
+
+
 def test_tags_ranked_by_weight_with_relevance_rule():
     _, tags = parse_item(item(), CFG)
     assert [(t.tagid, t.rank) for t in tags] == [(10, 1), (20, 2), (40, 3), (30, 4)]

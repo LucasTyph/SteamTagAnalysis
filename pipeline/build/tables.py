@@ -92,7 +92,8 @@ def parse_item(item: dict, cfg: BuildConfig = BUILD) -> tuple[GameRow, list[TagR
                 rank=rank,
                 weight=weight,
                 weight_share=share,
-                relevant=rank <= cfg.tag_max_rank or share >= cfg.tag_min_share,
+                relevant=rank <= cfg.tag_max_rank
+                or (cfg.tag_min_share is not None and share >= cfg.tag_min_share),
             )
         )
 
