@@ -173,6 +173,25 @@ def fetch_all(
         _run_items(conn, client, batch_size)
 
 
+# --- build --------------------------------------------------------------------
+
+
+@app.command()
+def build():
+    """Rebuild clean analysis tables (data/analysis.duckdb) from the raw cache."""
+    from pipeline.build import tables
+    from pipeline.config import ANALYSIS_DB_PATH, BUILD
+
+    t0 = time.monotonic()
+    counts = tables.run(db.connect())
+    console.print(f"[green]Built {ANALYSIS_DB_PATH}[/green] in {time.monotonic() - t0:.0f}s")
+    console.print(
+        f"  games: {counts['games']:,} ({counts['games_min_reviews']:,} with "
+        f"{BUILD.min_reviews}+ reviews) | game_tags: {counts['game_tags']:,} | "
+        f"tags: {counts['tags']:,}"
+    )
+
+
 # --- status & probes ----------------------------------------------------------
 
 

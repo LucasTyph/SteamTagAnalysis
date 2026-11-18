@@ -13,11 +13,17 @@ dependencies = [
 [project.optional-dependencies]
 analysis = [
     "duckdb>=1.1",
+    "pyarrow>=17",
     "polars>=1.9",
     "numpy>=2.0",
     "scipy>=1.14",
     "scikit-learn>=1.5",
     "ruptures>=1.1",
+]
+notebook = [
+    "ipykernel>=6.29",
+    "nbconvert>=7.16",
+    "matplotlib>=3.9",
 ]
 dev = [
     "pytest>=8.3",
@@ -40,6 +46,9 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/*" = ["E501"]  # long SQL strings
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

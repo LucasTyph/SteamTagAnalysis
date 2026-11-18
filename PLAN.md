@@ -158,7 +158,7 @@ For each game in the timeline set:
 - aggregate views: average trajectory by primary tag, normalized to months since release
 
 ### 5.5 Known biases (shown on the Methodology page)
-Survivorship (delisted games are missing). Tags are today's tags, not the ones at launch. `summary_filtered` excludes off-topic review bombs. GetItems' `percent_positive` is rounded to an integer. Free-to-play and early-access games are flagged and filterable. The timeline set is biased toward popular games.
+Survivorship (delisted games are missing). Early-access start dates are missing for many older games (e.g. Rust shows its 2018 1.0 date, not 2013), so release-year controls are approximate; for the timeline set, the first month with reviews is used instead. Tags are today's tags, not the ones at launch. `summary_filtered` excludes off-topic review bombs. GetItems' `percent_positive` is rounded to an integer. Free-to-play and early-access games are flagged and filterable. The timeline set is biased toward popular games.
 
 ---
 
@@ -238,8 +238,9 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [ ] Test: interrupt and resume with no lost or duplicated jobs
 
 ### M2 — Build + first exploration (1–2 days)
-- [ ] Raw → clean tables in DuckDB
-- [ ] Notebook: tag distributions, choosing the tag relevance thresholds, sanity checks against the Steam store
+- [x] Raw → clean tables in DuckDB (`stp build`, ~26 s)
+- [x] Notebook: tag distributions, choosing the tag relevance thresholds, sanity checks against the Steam store (`notebooks/01_explore_tags.ipynb`)
+- [ ] Final decision on the tag relevance rule (see notebook takeaways)
 
 ### M3 — Tag-mix analysis (2–3 days)
 - [ ] Shrinkage, combo mining, additive model, interaction effects, CIs

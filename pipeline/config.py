@@ -51,3 +51,18 @@ class FetchConfig:
 
 
 FETCH = FetchConfig()
+
+ANALYSIS_DB_PATH = DATA_DIR / "analysis.duckdb"
+
+
+@dataclass(frozen=True)
+class BuildConfig:
+    # Games with fewer reviews stay in `games` but are left out of tag-mix analysis.
+    min_reviews: int = 20
+    # A tag counts for a game if it is in the game's top N tags by votes…
+    tag_max_rank: int = 10
+    # …or has at least this share of the votes of the game's top tag.
+    tag_min_share: float = 0.3
+
+
+BUILD = BuildConfig()
