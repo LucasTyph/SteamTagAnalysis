@@ -80,6 +80,19 @@ cd web && npm install && npm run dev                  # site at http://localhost
 Tests and lint: `ruff check . && pytest` and `cd web && npm run build`. CI runs both on every push, and pushes to
 `main` deploy the site to GitHub Pages.
 
+## Release tracking
+
+A scheduled workflow ([track.yml](.github/workflows/track.yml)) runs every day and follows **every newly released
+Steam game for its first year**. It finds new store pages, watches coming-soon games for their release, snapshots
+each tracked game's review totals, and keeps exact positive and negative counts per day. Data goes to the
+[`tracking-data`](../../tree/tracking-data) branch as plain CSV.
+
+```bash
+stp track seed --dir tracking-data    # one-time: start from the local cache
+stp track daily --dir tracking-data   # what the workflow runs each day
+stp track status --dir tracking-data
+```
+
 ## Caveats
 
 Scores use Steam's filtered review counts; tags are today's tags; delisted games are missing; mix effects are

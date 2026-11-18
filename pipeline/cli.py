@@ -19,12 +19,15 @@ from pipeline.config import DB_PATH, FETCH, steam_api_key
 from pipeline.fetch import applist, items, jobs, perapp, taglist
 from pipeline.fetch.client import FetchError, SteamClient
 from pipeline.fetch.control import RunControl, parse_duration
+from pipeline.tracking.cli import track_app
 
 app = typer.Typer(help="Steam tag-mix & review-timeline pipeline.", no_args_is_help=True)
 fetch_app = typer.Typer(help="Resumable data fetching.", no_args_is_help=True)
 probe_app = typer.Typer(help="Measure endpoint limits.", no_args_is_help=True)
 app.add_typer(fetch_app, name="fetch")
 app.add_typer(probe_app, name="probe")
+
+app.add_typer(track_app, name="track")
 console = Console()
 
 Budget = Annotated[

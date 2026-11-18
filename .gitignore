@@ -22,3 +22,6 @@ web/dist/
 Thumbs.db
 .vscode/
 .idea/
+
+# release tracking data lives on the tracking-data branch
+tracking-data/
