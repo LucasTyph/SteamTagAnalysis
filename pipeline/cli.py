@@ -1,0 +1,228 @@
+"""`stp` command-line interface.
+
+Every fetch command is resumable: stop it any time (Ctrl+C, --budget, closing the
+terminal) and run the same command again to continue.
+"""
+
+from __future__ import annotations
+
+import time
+from typing import Annotated
+
+import typer
+from rich.console import Console
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, TimeRemainingColumn
+from rich.table import Table
+
+from pipeline import db
+from pipeline.config import DB_PATH, FETCH, steam_api_key
+from pipeline.fetch import applist, items, jobs, taglist
+from pipeline.fetch.client import FetchError, SteamClient
+from pipeline.fetch.control import RunControl, parse_duration
+
+app = typer.Typer(help="Steam tag-mix & review-timeline pipeline.", no_args_is_help=True)
+fetch_app = typer.Typer(help="Resumable data fetching.", no_args_is_help=True)
+probe_app = typer.Typer(help="Measure endpoint limits.", no_args_is_help=True)
+app.add_typer(fetch_app, name="fetch")
+app.add_typer(probe_app, name="probe")
+console = Console()
+
+Budget = Annotated[
+    str | None, typer.Option("--budget", "-b", help="Stop after this long, e.g. 30m, 1h30m.")
+]
+MaxRequests = Annotated[
+    int | None, typer.Option("--max-requests", help="Stop after this many HTTP requests.")
+]
+
+
+def _control(budget: str | None, max_requests: int | None) -> RunControl:
+    try:
+        budget_s = parse_duration(budget) if budget else None
+    except ValueError as e:
+        raise typer.BadParameter(str(e)) from e
+    return RunControl(budget_s=budget_s, max_requests=max_requests)
+
+
+def _require_key() -> str:
+    key = steam_api_key()
+    if not key:
+        console.print(
+            "[red]STEAM_API_KEY is not set.[/red] Copy .env.example to .env and add your key "
+            "(https://steamcommunity.com/dev/apikey)."
+        )
+        raise typer.Exit(1)
+    return key
+
+
+def _report_stop(reason: str | None, what: str) -> None:
+    if reason:
+        console.print(f"[yellow]Paused {what}: {reason}.[/yellow] Run the same command to resume.")
+    else:
+        console.print(f"[green]{what.capitalize()} complete.[/green]")
+
+
+# --- fetch stages -------------------------------------------------------------
+
+
+def _run_applist(conn, client, refresh: bool) -> str | None:
+    if refresh:
+        applist.reset(conn)
+    if applist.is_complete(conn):
+        n = conn.execute("SELECT COUNT(*) FROM apps").fetchone()[0]
+        console.print(f"App list already complete ({n:,} games). Use --refresh to re-list.")
+    else:
+        key = _require_key()
+        reason = applist.run(
+            conn,
+            client,
+            key,
+            on_page=lambda got, total: console.print(f"  page: +{got:,} apps (total {total:,})"),
+        )
+        _report_stop(reason, "app list")
+        if reason:
+            return reason
+    new = applist.enqueue_all(conn, items.KIND)
+    if new:
+        console.print(f"Queued {new:,} new apps for item details.")
+    return None
+
+
+def _run_items(conn, client, batch_size: int) -> str | None:
+    pending = jobs.pending_count(conn, items.KIND)
+    if pending == 0:
+        console.print("No pending item jobs. (Run `stp fetch applist` first if this is new.)")
+        return None
+    with Progress(
+        TextColumn("[bold]items[/bold]"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeRemainingColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("items", total=pending)
+        reason = items.run(conn, client, batch_size, on_batch=lambda n: progress.advance(task, n))
+    _report_stop(reason, "item details")
+    failed = jobs.counts(conn).get(items.KIND, {}).get(jobs.FAILED, 0)
+    if failed:
+        console.print(
+            f"[yellow]{failed:,} item jobs failed[/yellow] — `stp fetch items --retry-failed`."
+        )
+    return reason
+
+
+@fetch_app.command("applist")
+def fetch_applist(
+    refresh: Annotated[bool, typer.Option(help="Re-list all apps from scratch.")] = False,
+    budget: Budget = None,
+    max_requests: MaxRequests = None,
+):
+    """List all Steam games (needs STEAM_API_KEY) and queue them for item details."""
+    conn = db.connect()
+    control = _control(budget, max_requests)
+    with control.handle_sigint(), SteamClient(control) as client:
+        _run_applist(conn, client, refresh)
+
+
+@fetch_app.command("items")
+def fetch_items(
+    batch_size: Annotated[int, typer.Option(help="Apps per request.")] = FETCH.items_batch_size,
+    retry_failed: Annotated[bool, typer.Option(help="Re-queue failed jobs first.")] = False,
+    stale_after: Annotated[
+        str | None, typer.Option(help="Re-fetch apps older than this, e.g. 30d.")
+    ] = None,
+    budget: Budget = None,
+    max_requests: MaxRequests = None,
+):
+    """Fetch tags, review summary, release date and price for queued apps."""
+    conn = db.connect()
+    if retry_failed:
+        console.print(f"Re-queued {jobs.retry_failed(conn, items.KIND):,} failed jobs.")
+    if stale_after:
+        n = jobs.requeue_stale(conn, items.KIND, parse_duration(stale_after))
+        console.print(f"Re-queued {n:,} stale jobs.")
+    control = _control(budget, max_requests)
+    with control.handle_sigint(), SteamClient(control) as client:
+        _run_items(conn, client, batch_size)
+
+
+@fetch_app.command("taglist")
+def fetch_taglist(refresh: Annotated[bool, typer.Option()] = False):
+    """Fetch the tag ID → name list."""
+    conn = db.connect()
+    with SteamClient(RunControl()) as client:
+        n = taglist.run(conn, client, refresh)
+    console.print(f"[green]{n:,} tags cached.[/green]")
+
+
+@fetch_app.command("all")
+def fetch_all(
+    batch_size: Annotated[
+        int, typer.Option(help="Apps per items request.")
+    ] = FETCH.items_batch_size,
+    budget: Budget = None,
+    max_requests: MaxRequests = None,
+):
+    """Run every M1 stage in order: applist → taglist → items. Resumable."""
+    conn = db.connect()
+    control = _control(budget, max_requests)
+    with control.handle_sigint(), SteamClient(control) as client:
+        if _run_applist(conn, client, refresh=False):
+            return
+        n = taglist.run(conn, client)
+        console.print(f"{n:,} tags cached.")
+        _run_items(conn, client, batch_size)
+
+
+# --- status & probes ----------------------------------------------------------
+
+
+@app.command()
+def status():
+    """Show progress of every fetch stage."""
+    conn = db.connect()
+    n_apps = conn.execute("SELECT COUNT(*) FROM apps").fetchone()[0]
+    console.print(f"Database: {DB_PATH}")
+    state = "complete" if applist.is_complete(conn) else "in progress" if n_apps else "not started"
+    console.print(f"App list: {n_apps:,} games ({state})")
+    console.print(
+        f"Tag list: {'cached' if db.get_raw(conn, taglist.KIND, 'english') else 'not fetched'}"
+    )
+
+    table = Table("stage", "done", "pending", "failed", "progress")
+    for kind, c in sorted(jobs.counts(conn).items()):
+        total = sum(c.values())
+        pct = f"{100 * c[jobs.DONE] / total:.1f}%" if total else "-"
+        table.add_row(kind, f"{c[jobs.DONE]:,}", f"{c[jobs.PENDING]:,}", f"{c[jobs.FAILED]:,}", pct)
+    console.print(table)
+
+
+@probe_app.command("items-batch")
+def probe_items_batch(
+    sizes: Annotated[
+        str, typer.Option(help="Comma-separated batch sizes to try.")
+    ] = "50,100,200,400,800",
+):
+    """Try increasing GetItems batch sizes on known games and report what Steam returns."""
+    conn = db.connect()
+    appids = [r[0] for r in conn.execute("SELECT appid FROM apps ORDER BY appid LIMIT 1000")]
+    if len(appids) < 50:
+        console.print("[red]Need the app list first:[/red] stp fetch applist")
+        raise typer.Exit(1)
+    table = Table("batch size", "returned", "seconds", "result")
+    with SteamClient(RunControl()) as client:
+        for size in (int(s) for s in sizes.split(",")):
+            batch = appids[:size]
+            t0 = time.monotonic()
+            try:
+                _, by_id = items.fetch_batch(client, batch)
+                table.add_row(
+                    str(size), f"{len(by_id)}/{len(batch)}", f"{time.monotonic() - t0:.1f}", "ok"
+                )
+            except FetchError as e:
+                table.add_row(str(size), "-", f"{time.monotonic() - t0:.1f}", f"[red]{e}[/red]")
+                break
+    console.print(table)
+
+
+if __name__ == "__main__":
+    app()
