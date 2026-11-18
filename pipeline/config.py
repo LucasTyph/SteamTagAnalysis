@@ -68,3 +68,33 @@ class BuildConfig:
 
 
 BUILD = BuildConfig()
+
+
+@dataclass(frozen=True)
+class AnalysisConfig:
+    # Minimum games for a pair/triple to get statistics.
+    min_support: int = 15
+    # …made by at least this many distinct developers (games from one developer are
+    # averaged together, so a single studio's series counts once).
+    min_devs: int = 5
+    # A tag pair is a near-synonym if min(P(b|a), P(a|b)) is at least this.
+    synonym_threshold: float = 0.5
+    # Confidence level for effect intervals.
+    ci_level: float = 0.90
+    # Software/tooling tags that leak onto "games"; left out of the model and combos.
+    excluded_tags: tuple[str, ...] = (
+        "Utilities",
+        "Design & Illustration",
+        "Animation & Modeling",
+        "Video Production",
+        "Audio Production",
+        "Photo Editing",
+        "Software Training",
+        "Web Publishing",
+        "Game Development",
+        "Software",
+        "Accounting",
+    )
+
+
+ANALYSIS = AnalysisConfig()

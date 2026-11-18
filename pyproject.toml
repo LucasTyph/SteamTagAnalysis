@@ -12,7 +12,7 @@ dependencies = [
 
 [project.optional-dependencies]
 analysis = [
-    "duckdb>=1.1",
+    "duckdb>=2.0",
     "pyarrow>=17",
     "polars>=1.9",
     "numpy>=2.0",

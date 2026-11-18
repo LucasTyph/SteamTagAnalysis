@@ -87,27 +87,38 @@ def _run_applist(conn, client, refresh: bool) -> str | None:
     return None
 
 
-def _run_items(conn, client, batch_size: int) -> str | None:
-    pending = jobs.pending_count(conn, items.KIND)
+def _run_getitems(conn, client, batch_size: int, kind: str = items.KIND) -> str | None:
+    label = {items.KIND: "item details", items.BASIC_KIND: "developer info"}[kind]
+    pending = jobs.pending_count(conn, kind)
     if pending == 0:
-        console.print("No pending item jobs. (Run `stp fetch applist` first if this is new.)")
+        console.print(f"No pending {kind} jobs.")
         return None
     with Progress(
-        TextColumn("[bold]items[/bold]"),
+        TextColumn(f"[bold]{kind}[/bold]"),
         BarColumn(),
         MofNCompleteColumn(),
         TimeRemainingColumn(),
         console=console,
     ) as progress:
-        task = progress.add_task("items", total=pending)
-        reason = items.run(conn, client, batch_size, on_batch=lambda n: progress.advance(task, n))
-    _report_stop(reason, "item details")
-    failed = jobs.counts(conn).get(items.KIND, {}).get(jobs.FAILED, 0)
+        task = progress.add_task(kind, total=pending)
+        reason = items.run(
+            conn, client, batch_size, on_batch=lambda n: progress.advance(task, n), kind=kind
+        )
+    _report_stop(reason, label)
+    failed = jobs.counts(conn).get(kind, {}).get(jobs.FAILED, 0)
     if failed:
         console.print(
-            f"[yellow]{failed:,} item jobs failed[/yellow] — `stp fetch items --retry-failed`."
+            f"[yellow]{failed:,} {kind} jobs failed[/yellow] — `stp fetch {kind} --retry-failed`."
         )
     return reason
+
+
+def _queue_basic(conn) -> None:
+    from pipeline.config import BUILD
+
+    new = items.enqueue_basic(conn, BUILD.min_reviews)
+    if new:
+        console.print(f"Queued {new:,} games ({BUILD.min_reviews}+ reviews) for developer info.")
 
 
 @fetch_app.command("applist")
@@ -142,7 +153,24 @@ def fetch_items(
         console.print(f"Re-queued {n:,} stale jobs.")
     control = _control(budget, max_requests)
     with control.handle_sigint(), SteamClient(control) as client:
-        _run_items(conn, client, batch_size)
+        _run_getitems(conn, client, batch_size)
+
+
+@fetch_app.command("basic")
+def fetch_basic(
+    batch_size: Annotated[int, typer.Option(help="Apps per request.")] = FETCH.items_batch_size,
+    retry_failed: Annotated[bool, typer.Option(help="Re-queue failed jobs first.")] = False,
+    budget: Budget = None,
+    max_requests: MaxRequests = None,
+):
+    """Fetch developers, publishers and franchises for games with enough reviews."""
+    conn = db.connect()
+    _queue_basic(conn)
+    if retry_failed:
+        console.print(f"Re-queued {jobs.retry_failed(conn, items.BASIC_KIND):,} failed jobs.")
+    control = _control(budget, max_requests)
+    with control.handle_sigint(), SteamClient(control) as client:
+        _run_getitems(conn, client, batch_size, items.BASIC_KIND)
 
 
 @fetch_app.command("taglist")
@@ -162,7 +190,7 @@ def fetch_all(
     budget: Budget = None,
     max_requests: MaxRequests = None,
 ):
-    """Run every M1 stage in order: applist → taglist → items. Resumable."""
+    """Run every stage in order: applist → taglist → items → basic. Resumable."""
     conn = db.connect()
     control = _control(budget, max_requests)
     with control.handle_sigint(), SteamClient(control) as client:
@@ -170,7 +198,10 @@ def fetch_all(
             return
         n = taglist.run(conn, client)
         console.print(f"{n:,} tags cached.")
-        _run_items(conn, client, batch_size)
+        if _run_getitems(conn, client, batch_size):
+            return
+        _queue_basic(conn)
+        _run_getitems(conn, client, batch_size, items.BASIC_KIND)
 
 
 # --- build --------------------------------------------------------------------
@@ -190,6 +221,27 @@ def build():
         f"{BUILD.min_reviews}+ reviews) | game_tags: {counts['game_tags']:,} | "
         f"tags: {counts['tags']:,}"
     )
+
+
+@app.command()
+def analyze():
+    """Score games, fit the baseline model and compute combo statistics."""
+    from pipeline.analysis import run as analysis
+
+    t0 = time.monotonic()
+    analysis.run(log=lambda msg: console.print(f"  {msg}"))
+    console.print(f"[green]Analysis done[/green] in {time.monotonic() - t0:.0f}s")
+
+
+@app.command()
+def export():
+    """Write the website's data files to web/public/data/."""
+    from pipeline.export import web
+
+    sizes = web.run()
+    for name, size in sizes.items():
+        console.print(f"  {name:<20} {size / 1e6:6.2f} MB")
+    console.print(f"[green]Exported to {web.WEB_DATA_DIR}[/green]")
 
 
 # --- status & probes ----------------------------------------------------------

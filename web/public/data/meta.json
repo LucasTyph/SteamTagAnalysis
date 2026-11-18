@@ -1,0 +1,41 @@
+{
+  "build": {
+    "built_at": "2026-11-18T17:26:58.556019+00:00",
+    "min_reviews": 20,
+    "tag_max_rank": 10,
+    "tag_min_share": null
+  },
+  "analysis": {
+    "analyzed_at": "2026-11-18T17:27:10.732953+00:00",
+    "n_games": 59853,
+    "prior_alpha": 5.577367944295471,
+    "prior_beta": 1.5305445015167478,
+    "ridge_alpha": 10,
+    "r2": 0.3059313275114859,
+    "cv_r2": 0.2954226415979929,
+    "min_support": 15,
+    "min_devs": 5,
+    "ci_level": 0.9,
+    "synonym_threshold": 0.5
+  },
+  "excluded_tags": [
+    "Utilities",
+    "Design & Illustration",
+    "Animation & Modeling",
+    "Video Production",
+    "Audio Production",
+    "Photo Editing",
+    "Software Training",
+    "Web Publishing",
+    "Game Development",
+    "Software",
+    "Accounting"
+  ],
+  "counts": {
+    "games": 59853,
+    "developers": 36047,
+    "tags": 420,
+    "pairs": 17264,
+    "triples": 71529
+  }
+}

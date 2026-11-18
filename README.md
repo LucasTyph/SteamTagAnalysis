@@ -26,13 +26,14 @@ data/       local SQLite cache (gitignored)
 ```bash
 python -m venv .venv
 .venv/Scripts/activate        # Windows; use `source .venv/bin/activate` elsewhere
-pip install -e ".[dev]"
+pip install -e ".[analysis,notebook,dev]"
 cp .env.example .env          # then add STEAM_API_KEY
 ```
 
 ```bash
-stp fetch all --budget 30m    # applist → taglist → items; resumable
+stp fetch all --budget 30m    # applist → taglist → items → basic; resumable
 stp status                    # progress per stage
+stp build && stp analyze && stp export   # tables → statistics → web/public/data
 ```
 
 Every fetch command can be stopped at any time (Ctrl+C, `--budget`, `--max-requests`, or just

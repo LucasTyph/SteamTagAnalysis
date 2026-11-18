@@ -143,7 +143,9 @@ Raw `n_pos / n` is noisy for small games. Fit a **beta-binomial prior** to all g
 ### 5.2 Combo statistics
 - **Mining**: count co-occurrence for all tag pairs and triples among relevant tags, with minimum support (≥ 15 games, configurable). Apriori-style pruning keeps triples manageable.
 - **For each combo**: `n_games`, mean shrunken score, bootstrap 90% CI, median review count, median release year.
+- **Developer clustering**: games from one developer aren't independent (sequels, asset-flip series), so each developer's games are averaged first, and CIs and p-values use developers as the unit (`n_devs`, minimum 5). Without this, one studio's series of about 30 near-identical games topped the triple rankings.
 - **Expected score**: fit a **ridge-regularized additive model**: logit(score) ~ Σ tag dummies, plus release-year and price controls. The combo's **interaction effect** = mean residual of games that have the combo. This is the main "this mix outperforms its parts" number.
+- Interaction effects are **conservative**: without interaction terms, the additive model absorbs part of a real interaction into its tags' own coefficients (a test with a planted effect recovers roughly 40% of it). Rankings are still valid; absolute sizes are lower bounds. This goes on the methodology page.
 - **Simpler lift metric** for display: combo mean − mean of its single-tag means.
 - **Multiple-comparison caution**: thousands of combos means some look great by chance. Rank by the CI lower bound, apply a Benjamini-Hochberg flag, and say this on the methodology page.
 
@@ -243,9 +245,10 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [x] Tag relevance rule decided: top 10 tags by votes only
 
 ### M3 — Tag-mix analysis (2–3 days)
-- [ ] Shrinkage, combo mining, additive model, interaction effects, CIs
-- [ ] Notebook: first candidate "hidden gems". Check that they're real and not tag synonyms or noise
-- [ ] Export to Parquet and JSON
+- [x] Shrinkage, combo mining, additive model, interaction effects, CIs (`stp analyze`, ~10 s)
+- [x] Developer info fetch (`stp fetch basic`) and developer-clustered combo statistics
+- [x] Notebook: first candidate "hidden gems". Check that they're real and not tag synonyms or noise (`notebooks/02_combo_effects.ipynb`)
+- [x] Export to Parquet and JSON (`stp export`, ~4.8 MB)
 
 ### M4 — Tag Explorer + Hidden Gems pages (3–4 days)
 - [ ] DuckDB-WASM data layer, tag picker, combo stats, companions table, scatter plot, filters, URL state

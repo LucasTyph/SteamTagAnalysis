@@ -103,3 +103,24 @@ def test_applist_pages_and_resumes(conn):
     assert seen == [0, 20]
     assert applist.is_complete(conn)
     assert applist.enqueue_all(conn, items.KIND) == 3
+
+
+def test_basic_jobs_queued_only_for_reviewed_games(conn):
+    from pipeline.db import put_raw, transaction
+
+    with transaction(conn):
+        for appid, count in ((1, 50), (2, 5), (3, 20)):
+            put_raw(
+                conn,
+                items.KIND,
+                str(appid),
+                200,
+                {"appid": appid, "reviews": {"summary_filtered": {"review_count": count}}},
+            )
+        put_raw(conn, items.KIND, "4", 200, {"missing": True})
+    assert items.enqueue_basic(conn, min_reviews=20) == 2
+    calls: list[list[int]] = []
+    with make_client(getitems_handler(calls)) as client:
+        assert items.run(conn, client, batch_size=10, kind=items.BASIC_KIND) is None
+    assert calls == [[1, 3]]
+    assert db.get_raw(conn, items.BASIC_KIND, "3")["appid"] == 3

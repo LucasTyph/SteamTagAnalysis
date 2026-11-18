@@ -1,7 +1,7 @@
 import pytest
 
 from pipeline import db
-from pipeline.build.tables import parse_item, run
+from pipeline.build.tables import parse_basic, parse_item, run
 from pipeline.config import BuildConfig
 from pipeline.db import transaction
 
@@ -118,3 +118,48 @@ def test_run_writes_duckdb(tmp_path):
     con = duckdb.connect(str(out), read_only=True)
     rows = dict(con.execute("SELECT name, n_games_relevant FROM tags").fetchall())
     assert rows == {"Roguelike": 1, "Deckbuilding": 1, "Strategy": 1, "Indie": 0}
+
+
+def test_parse_basic_dev_key():
+    clan = {
+        "appid": 1,
+        "success": 1,
+        "basic_info": {
+            "developers": [{"name": "Supergiant Games", "creator_clan_account_id": 3584665}],
+            "publishers": [{"name": "Supergiant Games"}],
+            "franchises": [{"name": "Hades"}],
+        },
+    }
+    assert parse_basic(clan)["dev_key"] == "clan:3584665"
+    assert parse_basic(clan)["franchise"] == "Hades"
+    named = {"appid": 2, "success": 1, "basic_info": {"developers": [{"name": " Mega Crit "}]}}
+    assert parse_basic(named)["dev_key"] == "name:mega crit"
+    assert parse_basic({"appid": 3, "success": 1})["dev_key"] is None
+    assert parse_basic({"missing": True}) is None
+
+
+def test_games_without_developer_get_own_cluster(tmp_path):
+    duckdb = pytest.importorskip("duckdb")
+    conn = db.connect(tmp_path / "raw.sqlite")
+    with transaction(conn):
+        db.put_raw(conn, "items", "1", 200, item())
+        db.put_raw(conn, "items", "2", 200, item(appid=2, id=2))
+        db.put_raw(
+            conn,
+            "basic",
+            "1",
+            200,
+            {
+                "appid": 1,
+                "success": 1,
+                "basic_info": {"developers": [{"name": "Dev", "creator_clan_account_id": 9}]},
+            },
+        )
+        db.put_raw(conn, "taglist", "english", 200, {"response": {"tags": []}})
+    out = tmp_path / "a.duckdb"
+    run(conn, out, CFG)
+    con = duckdb.connect(str(out), read_only=True)
+    assert con.execute("SELECT appid, dev_key FROM games ORDER BY appid").fetchall() == [
+        (1, "clan:9"),
+        (2, "app:2"),
+    ]

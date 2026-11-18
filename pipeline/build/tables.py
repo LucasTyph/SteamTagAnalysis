@@ -116,6 +116,34 @@ def parse_item(item: dict, cfg: BuildConfig = BUILD) -> tuple[GameRow, list[TagR
     return game, tags
 
 
+def parse_basic(item: dict) -> dict | None:
+    """Developer / publisher / franchise from a `basic` GetItems response.
+
+    `dev_key` identifies the developer for clustering: Steam's creator-page account ID
+    when there is one, otherwise the lower-cased developer name.
+    """
+    if item.get("missing") or item.get("success") != 1:
+        return None
+    info = item.get("basic_info") or {}
+    devs = info.get("developers") or []
+    pubs = info.get("publishers") or []
+    franchises = info.get("franchises") or []
+    dev = devs[0] if devs else {}
+    if dev.get("creator_clan_account_id"):
+        dev_key = f"clan:{dev['creator_clan_account_id']}"
+    elif dev.get("name"):
+        dev_key = f"name:{dev['name'].strip().lower()}"
+    else:
+        dev_key = None
+    return {
+        "appid": int(item["appid"]),
+        "developer": dev.get("name"),
+        "publisher": pubs[0].get("name") if pubs else None,
+        "franchise": franchises[0].get("name") if franchises else None,
+        "dev_key": dev_key,
+    }
+
+
 def parse_taglist(body: dict) -> list[tuple[int, str]]:
     return [(int(t["tagid"]), t["name"]) for t in body.get("response", {}).get("tags", [])]
 
@@ -137,6 +165,8 @@ def run(
             games.append(parsed[0])
             tags.extend(parsed[1])
 
+    creators = [c for _, item in db.iter_raw(sqlite_conn, "basic") if (c := parse_basic(item))]
+
     taglist = db.get_raw(sqlite_conn, "taglist", "english")
     if taglist is None:
         raise RuntimeError("Tag list not fetched; run `stp fetch taglist`.")
@@ -156,7 +186,24 @@ def run(
         names_arrow = pa.table(  # noqa: F841
             {"tagid": [t[0] for t in tag_names], "name": [t[1] for t in tag_names]}
         )
-        con.execute("CREATE TABLE games AS SELECT * FROM games_arrow ORDER BY appid")
+        creators_arrow = pa.table(  # noqa: F841
+            {
+                k: pa.array(
+                    [c[k] for c in creators], type=pa.int64() if k == "appid" else pa.string()
+                )
+                for k in ("appid", "developer", "publisher", "franchise", "dev_key")
+            }
+        )
+        # Games without developer info form their own cluster (dev_key = app:<appid>).
+        con.execute(
+            """
+            CREATE TABLE games AS
+            SELECT g.*, c.developer, c.publisher, c.franchise,
+                   COALESCE(c.dev_key, 'app:' || g.appid) AS dev_key
+            FROM games_arrow g LEFT JOIN creators_arrow c USING (appid)
+            ORDER BY g.appid
+            """
+        )
         con.execute("CREATE TABLE game_tags AS SELECT * FROM tags_arrow ORDER BY appid, rank")
         con.execute(
             """
@@ -184,6 +231,7 @@ def run(
             ).fetchone()[0],
             "game_tags": len(tags),
             "tags": len(tag_names),
+            "with_developer": sum(1 for c in creators if c["dev_key"]),
         }
     finally:
         con.close()
