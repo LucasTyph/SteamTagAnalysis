@@ -5,6 +5,16 @@ import { loadMeta } from "../data/queries";
 import { fmtInt } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 
+const SECTIONS = [
+  ["data", "Data"],
+  ["scores", "Scores"],
+  ["tags", "Tags"],
+  ["effects", "Mix effects"],
+  ["timelines", "Timelines"],
+  ["limits", "Limitations"],
+  ["reproduce", "Reproduce it"],
+] as const;
+
 export function Methodology() {
   const data = useAsync(() => Promise.all([loadMeta(), loadFindings()]), []);
   if (data.error) return <ErrorNote error={data.error} />;
@@ -29,13 +39,19 @@ export function Methodology() {
       </header>
 
       <nav className="toc" aria-label="On this page">
-        <a href="#data">Data</a>
-        <a href="#scores">Scores</a>
-        <a href="#tags">Tags</a>
-        <a href="#effects">Mix effects</a>
-        <a href="#timelines">Timelines</a>
-        <a href="#limits">Limitations</a>
-        <a href="#reproduce">Reproduce it</a>
+        {SECTIONS.map(([id, label]) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            onClick={(e) => {
+              // Hash routing owns the URL fragment, so scroll instead of navigating.
+              e.preventDefault();
+              document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
       <h2 id="data">Data</h2>
