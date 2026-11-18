@@ -83,6 +83,16 @@ def daily(
     )
 
 
+def _read_runs(dir: Path) -> list[dict]:
+    import csv
+
+    path = dir / "runs.csv"
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
 @track_app.command("status")
 def status(dir: Dir = DEFAULT_DIR):
     """Summarize the tracking data."""
@@ -91,7 +101,15 @@ def status(dir: Dir = DEFAULT_DIR):
     state = store.load_state()
     today = datetime.now(UTC).date()
     table = Table("", "value")
-    table.add_row("last run", state.get("last_run", "never"))
+    runs = _read_runs(dir)
+    if runs:
+        last = runs[-1]
+        how = f"stopped early: {last['stop_reason']}" if last["stop_reason"] else "complete"
+        table.add_row("last run", f"{last['date']} ({how}, {last['requests']} requests)")
+        table.add_row("daily counts still due", last["histograms_pending"] or "0")
+    else:
+        table.add_row("last run", "never")
+    table.add_row("last complete run", state.get("last_run", "never"))
     table.add_row(
         "coming soon (watched)", f"{sum(e.status == COMING_SOON for e in catalog.values()):,}"
     )
