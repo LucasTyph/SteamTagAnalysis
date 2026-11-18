@@ -16,7 +16,7 @@ from rich.table import Table
 
 from pipeline import db
 from pipeline.config import DB_PATH, FETCH, steam_api_key
-from pipeline.fetch import applist, items, jobs, taglist
+from pipeline.fetch import applist, items, jobs, perapp, taglist
 from pipeline.fetch.client import FetchError, SteamClient
 from pipeline.fetch.control import RunControl, parse_duration
 
@@ -173,6 +173,48 @@ def fetch_basic(
         _run_getitems(conn, client, batch_size, items.BASIC_KIND)
 
 
+@fetch_app.command("timelines")
+def fetch_timelines(
+    top: Annotated[int, typer.Option(help="How many of the most-reviewed games.")] = 1000,
+    retry_failed: Annotated[bool, typer.Option(help="Re-queue failed jobs first.")] = False,
+    stale_after: Annotated[
+        str | None, typer.Option(help="Re-fetch games older than this, e.g. 30d.")
+    ] = None,
+    budget: Budget = None,
+    max_requests: MaxRequests = None,
+):
+    """Fetch monthly review history and developer news for the most-reviewed games."""
+    conn = db.connect()
+    new = perapp.enqueue_top(conn, top)
+    if any(new.values()):
+        console.print(f"Queued {new[perapp.HISTOGRAM]:,} games (top {top:,} by reviews).")
+    for kind in perapp.STAGES:
+        if retry_failed:
+            jobs.retry_failed(conn, kind)
+        if stale_after:
+            jobs.requeue_stale(conn, kind, parse_duration(stale_after))
+    control = _control(budget, max_requests)
+    with control.handle_sigint(), SteamClient(control) as client:
+        for kind in perapp.STAGES:
+            pending = jobs.pending_count(conn, kind)
+            if not pending:
+                continue
+            with Progress(
+                TextColumn(f"[bold]{kind}[/bold]"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeRemainingColumn(),
+                console=console,
+            ) as progress:
+                task = progress.add_task(kind, total=pending)
+                reason = perapp.run(
+                    conn, client, kind, lambda n, t=task, p=progress: p.advance(t, n)
+                )
+            _report_stop(reason, kind)
+            if reason:
+                return
+
+
 @fetch_app.command("taglist")
 def fetch_taglist(refresh: Annotated[bool, typer.Option()] = False):
     """Fetch the tag ID → name list."""
@@ -227,9 +269,11 @@ def build():
 def analyze():
     """Score games, fit the baseline model and compute combo statistics."""
     from pipeline.analysis import run as analysis
+    from pipeline.analysis import timeline_run
 
     t0 = time.monotonic()
     analysis.run(log=lambda msg: console.print(f"  {msg}"))
+    timeline_run.run(log=lambda msg: console.print(f"  {msg}"))
     console.print(f"[green]Analysis done[/green] in {time.monotonic() - t0:.0f}s")
 
 
@@ -240,7 +284,13 @@ def export():
 
     sizes = web.run()
     for name, size in sizes.items():
-        console.print(f"  {name:<20} {size / 1e6:6.2f} MB")
+        if name != "timelines":
+            console.print(f"  {name:<20} {size / 1e6:6.2f} MB")
+    tl = web.WEB_DATA_DIR / "timelines"
+    if tl.exists():
+        files = list(tl.glob("*.json"))
+        total = sum(f.stat().st_size for f in files)
+        console.print(f"  {'timelines/':<20} {total / 1e6:6.2f} MB in {len(files):,} files")
     console.print(f"[green]Exported to {web.WEB_DATA_DIR}[/green]")
 
 

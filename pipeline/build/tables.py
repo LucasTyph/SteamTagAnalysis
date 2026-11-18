@@ -167,6 +167,19 @@ def run(
 
     creators = [c for _, item in db.iter_raw(sqlite_conn, "basic") if (c := parse_basic(item))]
 
+    from pipeline.build import timelines
+
+    monthly = [
+        row
+        for key, body in db.iter_raw(sqlite_conn, "histogram")
+        for row in timelines.parse_histogram(int(key), body)
+    ]
+    news = [
+        row
+        for key, body in db.iter_raw(sqlite_conn, "news")
+        for row in timelines.parse_news(int(key), body)
+    ]
+
     taglist = db.get_raw(sqlite_conn, "taglist", "english")
     if taglist is None:
         raise RuntimeError("Tag list not fetched; run `stp fetch taglist`.")
@@ -219,6 +232,31 @@ def run(
             """,
             [cfg.min_reviews],
         )
+        monthly_arrow = pa.table(  # noqa: F841
+            {
+                "appid": pa.array([r[0] for r in monthly], pa.int64()),
+                "month": pa.array([r[1] for r in monthly], pa.date32()),
+                "up": pa.array([r[2] for r in monthly], pa.int64()),
+                "down": pa.array([r[3] for r in monthly], pa.int64()),
+            }
+        )
+        news_arrow = pa.table(  # noqa: F841
+            {
+                "appid": pa.array([r[0] for r in news], pa.int64()),
+                "gid": pa.array([r[1] for r in news], pa.string()),
+                "date": pa.array([r[2] for r in news], pa.timestamp("s")),
+                "title": pa.array([r[3] for r in news], pa.string()),
+                "url": pa.array([r[4] for r in news], pa.string()),
+                "kind": pa.array([r[5] for r in news], pa.string()),
+            }
+        )
+        con.execute(
+            "CREATE TABLE review_monthly AS SELECT * FROM monthly_arrow ORDER BY appid, month"
+        )
+        con.execute(
+            "CREATE TABLE news AS SELECT DISTINCT ON (appid, gid) * FROM news_arrow "
+            "ORDER BY appid, date"
+        )
         con.execute(
             "CREATE TABLE build_info AS SELECT ? AS built_at, ? AS min_reviews, "
             "? AS tag_max_rank, ? AS tag_min_share",
@@ -232,6 +270,8 @@ def run(
             "game_tags": len(tags),
             "tags": len(tag_names),
             "with_developer": sum(1 for c in creators if c["dev_key"]),
+            "timeline_games": len({r[0] for r in monthly}),
+            "news": len(news),
         }
     finally:
         con.close()

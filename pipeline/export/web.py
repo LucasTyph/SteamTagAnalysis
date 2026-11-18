@@ -5,6 +5,9 @@
 - combos.parquet     precomputed pair/triple statistics
 - tags.json          tag list with per-tag stats
 - meta.json          build/analysis settings, fit stats and counts
+- timelines/index.json        one summary row per timeline game
+- timelines/<appid>.json      monthly history, turning points, announcements (lazy-loaded)
+- timelines/tag_curves.json   average trajectory by primary tag
 
 Developer keys are replaced by small integer IDs, so the browser can still
 cluster by developer for arbitrary combos without shipping the keys.
@@ -110,6 +113,113 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
             "counts": counts,
         }
         (out_dir / "meta.json").write_text(json.dumps(meta, indent=2, default=str), "utf-8")
+        _export_timelines(con, out_dir / "timelines")
     finally:
         con.close()
     return {p.name: p.stat().st_size for p in sorted(out_dir.iterdir())}
+
+
+def _r(v, digits=1):
+    return None if v is None else round(float(v), digits)
+
+
+def _export_timelines(con, out: Path, max_news: int = 120) -> None:
+    has = con.execute(
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'timeline_games'"
+    ).fetchone()[0]
+    if not has:
+        return
+    out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("*.json"):
+        old.unlink()
+
+    index = []
+    rows = con.execute(
+        """
+        SELECT tg.appid, g.name, g.developer, tg.first_month, tg.last_month, tg.total_reviews,
+               tg.overall_score, tg.launch_score, tg.recent_score, tg.drift, tg.trough_score,
+               tg.trough_month, tg.peak_score, tg.recovery, tg.decline, tg.volatility,
+               tg.n_changes,
+               (SELECT list(t.name ORDER BY gt.rank)[1:3] FROM game_tags gt
+                JOIN tag_stats t USING (tagid) WHERE gt.appid = tg.appid AND gt.relevant) AS tags
+        FROM timeline_games tg JOIN games g USING (appid)
+        ORDER BY tg.total_reviews DESC
+        """
+    ).fetchall()
+    for r in rows:
+        index.append(
+            {
+                "appid": r[0],
+                "name": r[1],
+                "developer": r[2],
+                "first": r[3].isoformat()[:7],
+                "last": r[4].isoformat()[:7],
+                "reviews": r[5],
+                "overall": _r(r[6]),
+                "launch": _r(r[7]),
+                "recent": _r(r[8]),
+                "drift": _r(r[9]),
+                "trough": _r(r[10]),
+                "trough_month": r[11].isoformat()[:7] if r[11] else None,
+                "peak": _r(r[12]),
+                "recovery": _r(r[13]),
+                "decline": _r(r[14]),
+                "volatility": _r(r[15]),
+                "changes": r[16],
+                "tags": list(r[17] or []),
+            }
+        )
+    (out / "index.json").write_text(json.dumps(index, separators=(",", ":")), "utf-8")
+
+    monthly: dict[int, list] = {}
+    for appid, month, up, down in con.execute(
+        "SELECT appid, month, up, down FROM review_monthly ORDER BY appid, month"
+    ).fetchall():
+        monthly.setdefault(appid, []).append([month.isoformat()[:7], up, down])
+    changes: dict[int, list] = {}
+    for r in con.execute(
+        "SELECT appid, month, before, after, news_title, news_url, news_date, news_kind "
+        "FROM timeline_changes ORDER BY appid, month"
+    ).fetchall():
+        changes.setdefault(r[0], []).append(
+            {
+                "month": r[1].isoformat()[:7],
+                "before": _r(r[2]),
+                "after": _r(r[3]),
+                "news": None
+                if r[4] is None
+                else {"title": r[4], "url": r[5], "date": r[6].date().isoformat(), "kind": r[7]},
+            }
+        )
+    news: dict[int, list] = {}
+    for appid, when, title, url, kind in con.execute(
+        "SELECT appid, date, title, url, kind FROM news "
+        "WHERE kind IN ('update', 'launch') ORDER BY appid, date DESC"
+    ).fetchall():
+        items = news.setdefault(appid, [])
+        if len(items) < max_news:
+            items.append(
+                {"date": when.date().isoformat(), "title": title, "url": url, "kind": kind}
+            )
+    for game in index:
+        a = game["appid"]
+        doc = {
+            "appid": a,
+            "months": monthly.get(a, []),
+            "changes": changes.get(a, []),
+            "news": sorted(news.get(a, []), key=lambda n: n["date"]),
+        }
+        (out / f"{a}.json").write_text(json.dumps(doc, separators=(",", ":")), "utf-8")
+
+    curves: dict[int, dict] = {}
+    for tagid, name, m, n, mean, p25, p75 in con.execute(
+        """
+        SELECT c.tagid, t.name, c.months_since_launch, c.n_games, c.mean_pct, c.p25, c.p75
+        FROM tag_curves c JOIN tags t USING (tagid) ORDER BY c.tagid, c.months_since_launch
+        """
+    ).fetchall():
+        cur = curves.setdefault(tagid, {"tagid": tagid, "name": name, "points": []})
+        cur["points"].append([m, n, _r(mean), _r(p25), _r(p75)])
+    (out / "tag_curves.json").write_text(
+        json.dumps(list(curves.values()), separators=(",", ":")), "utf-8"
+    )

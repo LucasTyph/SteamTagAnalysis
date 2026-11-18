@@ -163,3 +163,44 @@ def test_games_without_developer_get_own_cluster(tmp_path):
         (1, "clan:9"),
         (2, "app:2"),
     ]
+
+
+def test_parse_histogram_and_news():
+    from pipeline.build.timelines import classify_news, parse_histogram, parse_news
+
+    body = {
+        "results": {
+            "rollup_type": "month",
+            "rollups": [
+                {"date": 1575158400, "recommendations_up": 10, "recommendations_down": 2},
+                {"date": 1577836800, "recommendations_up": 5, "recommendations_down": 5},
+            ],
+        }
+    }
+    rows = parse_histogram(7, body)
+    assert [(r[1].isoformat(), r[2], r[3]) for r in rows] == [
+        ("2019-12-01", 10, 2),
+        ("2020-01-01", 5, 5),
+    ]
+    assert (
+        parse_histogram(7, {"results": {"rollup_type": "week", "rollups": [{"date": 1575158400}]}})
+        == []
+    )
+
+    assert classify_news("Patch 1.0.4 is live") == "update"
+    assert classify_news("Hotfix for crashes") == "update"
+    assert classify_news("Version 1.0 is here") == "launch"
+    assert classify_news("Hades II is out now!") == "launch"
+    assert classify_news("Watch our orchestral concert") == "other"
+    news = parse_news(
+        7,
+        {
+            "appnews": {
+                "newsitems": [
+                    {"gid": "1", "title": "Update 2", "date": 1600000000, "url": "u"},
+                    {"gid": "2", "title": "", "date": 1600000000},
+                ]
+            }
+        },
+    )
+    assert len(news) == 1 and news[0][5] == "update"

@@ -124,3 +124,41 @@ def test_basic_jobs_queued_only_for_reviewed_games(conn):
         assert items.run(conn, client, batch_size=10, kind=items.BASIC_KIND) is None
     assert calls == [[1, 3]]
     assert db.get_raw(conn, items.BASIC_KIND, "3")["appid"] == 3
+
+
+def test_timeline_stages_pause_and_resume(conn):
+    from pipeline.db import put_raw, transaction
+    from pipeline.fetch import perapp
+
+    with transaction(conn):
+        for appid, count in ((1, 500), (2, 50), (3, 5000), (4, 10)):
+            put_raw(
+                conn,
+                items.KIND,
+                str(appid),
+                200,
+                {
+                    "appid": appid,
+                    "type": 0,
+                    "reviews": {"summary_filtered": {"review_count": count}},
+                },
+            )
+    assert perapp.top_games(conn, 2) == ["3", "1"]
+    assert perapp.enqueue_top(conn, 2) == {"histogram": 2, "news": 2}
+
+    seen = []
+
+    def handler(req):
+        seen.append(str(req.url))
+        if "appreviewhistogram" in str(req.url):
+            return httpx.Response(200, json={"success": 1, "results": {"rollups": []}})
+        return httpx.Response(200, json={"appnews": {"newsitems": []}})
+
+    with make_client(handler, RunControl(max_requests=1)) as client:
+        assert perapp.run(conn, client, perapp.HISTOGRAM) is not None
+    with make_client(handler) as client:
+        for kind in perapp.STAGES:
+            assert perapp.run(conn, client, kind) is None
+    assert len(seen) == 4
+    assert "appreviewhistogram/3" in seen[0] and "appid=1" in seen[3]
+    assert jobs.counts(conn)["news"]["done"] == 2

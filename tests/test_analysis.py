@@ -117,3 +117,68 @@ def test_run_clusters_combo_stats_by_developer(tmp_path):
     assert n_devs == expected_devs  # the 20-game series counts as one developer
     assert n_games >= 20 + n_devs - 1
     assert con.execute("SELECT COUNT(*) FROM game_scores").fetchone()[0] == len(rows)
+
+
+def _months(n, start=(2020, 1)):
+    from datetime import date
+
+    from pipeline.analysis.timelines import _add_months
+
+    return [_add_months(date(*start, 1), i) for i in range(n)]
+
+
+def test_timeline_detects_planted_drop_and_recovery():
+    from pipeline.analysis.timelines import summarize
+
+    rng = np.random.default_rng(3)
+    p = np.r_[np.full(12, 0.90), np.full(8, 0.60), np.full(12, 0.85)]
+    n = np.full(len(p), 400)
+    up = rng.binomial(n, p)
+    s = summarize(_months(len(p)), list(up), list(n - up))
+    assert len(s.changes) == 2
+    assert s.changes[0].month == _months(len(p))[12] and s.changes[0].shift < -20
+    assert s.changes[1].month == _months(len(p))[20] and s.changes[1].shift > 15
+    assert s.launch_score == pytest.approx(90, abs=3)
+    assert s.recent_score == pytest.approx(85, abs=3)
+    assert s.trough_score == pytest.approx(60, abs=4)
+    assert s.recovery > 20
+
+
+def test_timeline_stable_series_has_no_changes_and_handles_gaps():
+    from pipeline.analysis.timelines import summarize
+
+    rng = np.random.default_rng(4)
+    months = _months(30)
+    n = np.full(30, 300)
+    up = rng.binomial(n, 0.8)
+    # drop two months entirely (no reviews) — they get filled with zeros
+    keep = [i for i in range(30) if i not in (10, 11)]
+    s = summarize([months[i] for i in keep], list(up[keep]), list((n - up)[keep]))
+    assert s.changes == []
+    assert s.months == 30
+    assert s.volatility < 5
+
+
+def test_match_news_prefers_closest_update_within_window():
+    from datetime import date, datetime
+
+    from pipeline.analysis.timelines import NewsItem, match_news
+
+    news = [
+        NewsItem(datetime(2021, 3, 1), "Big patch", "u1", "update"),
+        NewsItem(datetime(2021, 3, 14), "Dev stream", "u2", "other"),
+        NewsItem(datetime(2021, 5, 20), "Season 2", "u3", "update"),
+    ]
+    assert match_news(date(2021, 3, 1), news).url == "u1"
+    assert match_news(date(2021, 9, 1), news) is None
+
+
+def test_launch_window_extends_until_enough_reviews():
+    from pipeline.analysis.timelines import summarize
+
+    # 3 tiny all-positive months, then normal volume at 70%
+    up = [2, 3, 1] + [140] * 12
+    down = [0, 0, 0] + [60] * 12
+    s = summarize(_months(15), up, down)
+    assert s.launch_score == pytest.approx(70.6, abs=1)  # not 100%
+    assert summarize(_months(15), up, down, launched_before_reviews=True).launch_score is None
