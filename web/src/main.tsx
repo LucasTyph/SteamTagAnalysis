@@ -9,6 +9,7 @@ import "./styles.css";
 
 // Data-heavy pages (DuckDB-WASM, charts) load on demand.
 const TagExplorer = lazy(() => import("./pages/TagExplorer").then((m) => ({ default: m.TagExplorer })));
+const Timelines = lazy(() => import("./pages/Timelines").then((m) => ({ default: m.Timelines })));
 const HiddenGems = lazy(() => import("./pages/HiddenGems").then((m) => ({ default: m.HiddenGems })));
 const page = (el: JSX.Element) => <Suspense fallback={<Loading label="Loading page…" />}>{el}</Suspense>;
 
@@ -22,7 +23,7 @@ const router = createHashRouter([
       { index: true, element: <Placeholder title="Steam Tag Analysis" /> },
       { path: "explore", element: page(<TagExplorer />) },
       { path: "gems", element: page(<HiddenGems />) },
-      { path: "timelines", element: <Placeholder title="Review Timelines" /> },
+      { path: "timelines", element: page(<Timelines />) },
       { path: "findings", element: <Placeholder title="Findings" /> },
       { path: "methodology", element: <Placeholder title="Methodology" /> },
     ],

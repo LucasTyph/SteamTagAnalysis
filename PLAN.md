@@ -262,7 +262,9 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [x] Review notebook (`notebooks/03_review_timelines.ipynb`)
 
 ### M6 — Timelines page (2–3 days)
-- [ ] Single-game chart with markers, comparison mode, leaderboards, tag-aggregate trajectories
+- [x] Single-game chart with turning-point markers, review volume, and nearest-announcement table
+- [x] Comparison mode (up to 4 games, calendar or since-launch alignment, optional smoothing), shareable URLs
+- [x] Leaderboards (comebacks, declines, most improved, most consistent) and tag-aggregate trajectories
 
 ### M7 — Story and polish (2–3 days)
 - [ ] Findings and Methodology pages, Home page

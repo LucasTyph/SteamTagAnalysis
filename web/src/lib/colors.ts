@@ -17,3 +17,6 @@ export function scoreColor(score: number, center = 78.5, spread = 9): string {
 export const POS = "rgb(52, 152, 120)";
 export const NEUTRAL = "rgb(150, 150, 160)";
 export const NEG = "rgb(214, 96, 77)";
+
+// Categorical colors for up to 4 compared series; mid-tones that read in both themes.
+export const SERIES_COLORS = ["#4a7fb5", "#d6604d", "#2f9e7a", "#a26bc6"];
