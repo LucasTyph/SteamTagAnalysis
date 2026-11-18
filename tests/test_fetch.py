@@ -162,3 +162,14 @@ def test_timeline_stages_pause_and_resume(conn):
     assert len(seen) == 4
     assert "appreviewhistogram/3" in seen[0] and "appid=1" in seen[3]
     assert jobs.counts(conn)["news"]["done"] == 2
+
+
+def test_sigterm_requests_graceful_stop():
+    import signal
+
+    control = RunControl()
+    before = signal.getsignal(signal.SIGTERM)
+    with control.handle_sigint():
+        signal.raise_signal(signal.SIGTERM)  # delivered to the handler, not a hard kill
+        assert control.should_stop
+    assert signal.getsignal(signal.SIGTERM) is before  # handler restored

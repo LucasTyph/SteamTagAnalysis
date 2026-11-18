@@ -69,8 +69,11 @@ class RunControl:
                 raise KeyboardInterrupt
             self.interrupted = True
 
-        previous = signal.signal(signal.SIGINT, handler)
+        # SIGTERM too: CI runners (GitHub Actions cancel) send it before killing the job.
+        signals = [signal.SIGINT, signal.SIGTERM]
+        previous = {s: signal.signal(s, handler) for s in signals}
         try:
             yield self
         finally:
-            signal.signal(signal.SIGINT, previous)
+            for s, prev in previous.items():
+                signal.signal(s, prev)

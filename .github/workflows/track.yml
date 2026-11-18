@@ -38,7 +38,8 @@ jobs:
         env:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
         # Stops cleanly before the job limit; anything unfinished goes first tomorrow.
-        run: stp track daily --dir tracking-data --budget 5h
+        # `exec` so stp itself receives the cancel signal and saves before exiting.
+        run: exec stp track daily --dir tracking-data --budget 5h
 
       - name: Commit data
         if: always()

@@ -300,7 +300,7 @@ def run_daily(
             pending += [(a, d, up, down) for d, up, down in parse_recent(body)]
             catalog[a].last_histogram = today.isoformat()
             stats["histograms"] += 1
-            if (i + 1) % 200 == 0:  # checkpoint
+            if (i + 1) % 50 == 0:  # checkpoint often: a killed run loses at most 50
                 store.upsert_daily(pending)
                 pending = []
                 store.save_catalog(catalog)
