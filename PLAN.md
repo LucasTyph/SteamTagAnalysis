@@ -257,8 +257,9 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [x] Turn on GitHub Pages (source: GitHub Actions) and check the live deploy
 
 ### M5 — Timelines pipeline (1–2 days)
-- [ ] Timeline-set selection, histogram + news fetch stages (resumable, same queue)
-- [ ] Monthly metrics, change points, news alignment, export
+- [x] Timeline-set selection, histogram + news fetch stages (resumable, same queue; `stp fetch timelines`, ~45 min for 1k games)
+- [x] Monthly metrics, change points, news alignment, export (weekly rollups for newer games are summed into months)
+- [x] Review notebook (`notebooks/03_review_timelines.ipynb`)
 
 ### M6 — Timelines page (2–3 days)
 - [ ] Single-game chart with markers, comparison mode, leaderboards, tag-aggregate trajectories

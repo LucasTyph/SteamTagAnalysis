@@ -182,10 +182,22 @@ def test_parse_histogram_and_news():
         ("2019-12-01", 10, 2),
         ("2020-01-01", 5, 5),
     ]
-    assert (
-        parse_histogram(7, {"results": {"rollup_type": "week", "rollups": [{"date": 1575158400}]}})
-        == []
-    )
+    weekly = {
+        "results": {
+            "rollup_type": "week",
+            "rollups": [
+                {"date": 1575158400, "recommendations_up": 3, "recommendations_down": 1},
+                {"date": 1575763200, "recommendations_up": 4, "recommendations_down": 0},
+                {"date": 1577836800, "recommendations_up": 1, "recommendations_down": 1},
+            ],
+        }
+    }
+    assert [(r[1].isoformat(), r[2], r[3]) for r in parse_histogram(7, weekly)] == [
+        ("2019-12-01", 7, 1),
+        ("2020-01-01", 1, 1),
+    ]
+    day = {"results": {"rollup_type": "day", "rollups": [{"date": 1575158400}]}}
+    assert parse_histogram(7, day) == []
 
     assert classify_news("Patch 1.0.4 is live") == "update"
     assert classify_news("Hotfix for crashes") == "update"

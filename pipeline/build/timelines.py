@@ -24,9 +24,13 @@ def _month(ts: int) -> date:
 
 
 def parse_histogram(appid: int, body: dict) -> list[tuple[int, date, int, int]]:
-    """Monthly rollups → (appid, month, up, down). Months are merged if repeated."""
+    """Rollups → (appid, month, up, down).
+
+    Older games come back as monthly rollups; newer ones (roughly the last two years)
+    as weekly rollups, which are summed into the month each week starts in.
+    """
     results = body.get("results") or {}
-    if results.get("rollup_type", "month") != "month":
+    if results.get("rollup_type", "month") not in ("month", "week"):
         return []
     merged: dict[date, list[int]] = {}
     for r in results.get("rollups") or []:

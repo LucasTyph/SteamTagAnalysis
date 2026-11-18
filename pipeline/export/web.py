@@ -123,7 +123,7 @@ def _r(v, digits=1):
     return None if v is None else round(float(v), digits)
 
 
-def _export_timelines(con, out: Path, max_news: int = 120) -> None:
+def _export_timelines(con, out: Path, max_news: int = 40) -> None:
     has = con.execute(
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'timeline_games'"
     ).fetchone()[0]
@@ -203,6 +203,14 @@ def _export_timelines(con, out: Path, max_news: int = 120) -> None:
             )
     for game in index:
         a = game["appid"]
+        # Always keep announcements matched to a turning point, even if older.
+        kept = news.get(a, [])
+        urls = {n["url"] for n in kept}
+        for c in changes.get(a, []):
+            if c["news"] and c["news"]["url"] not in urls:
+                kept.append({k: c["news"][k] for k in ("date", "title", "url", "kind")})
+                urls.add(c["news"]["url"])
+        news[a] = kept
         doc = {
             "appid": a,
             "months": monthly.get(a, []),
