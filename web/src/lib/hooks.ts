@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { loadTags, type Tag } from "../data/queries";
+import { useEffect, useState } from "react";
 
 export interface AsyncState<T> {
   data: T | undefined;
@@ -29,21 +28,3 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]): AsyncState<T
   return state;
 }
 
-export interface TagIndex {
-  list: Tag[];
-  byId: Map<number, Tag>;
-  byName: Map<string, Tag>;
-}
-
-export function useTags(): AsyncState<TagIndex> {
-  const state = useAsync(loadTags, []);
-  const index = useMemo(() => {
-    if (!state.data) return undefined;
-    return {
-      list: state.data,
-      byId: new Map(state.data.map((t) => [t.tagid, t])),
-      byName: new Map(state.data.map((t) => [t.name.toLowerCase(), t])),
-    };
-  }, [state.data]);
-  return { ...state, data: index };
-}

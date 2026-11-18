@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import type { Tag } from "../data/queries";
-import type { TagIndex } from "../lib/hooks";
+import type { TagIndex } from "../lib/useTags";
 
 interface Props {
   tags: TagIndex;

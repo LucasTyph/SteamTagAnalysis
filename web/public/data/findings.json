@@ -1,0 +1,711 @@
+{
+ "year_trend": [
+  {
+   "year": 2010,
+   "games": 206,
+   "score": 76.4
+  },
+  {
+   "year": 2011,
+   "games": 232,
+   "score": 74.3
+  },
+  {
+   "year": 2012,
+   "games": 292,
+   "score": 77.7
+  },
+  {
+   "year": 2013,
+   "games": 434,
+   "score": 77.3
+  },
+  {
+   "year": 2014,
+   "games": 1354,
+   "score": 73.2
+  },
+  {
+   "year": 2015,
+   "games": 1999,
+   "score": 73.6
+  },
+  {
+   "year": 2016,
+   "games": 2968,
+   "score": 75.0
+  },
+  {
+   "year": 2017,
+   "games": 3560,
+   "score": 75.1
+  },
+  {
+   "year": 2018,
+   "games": 3727,
+   "score": 75.7
+  },
+  {
+   "year": 2019,
+   "games": 3409,
+   "score": 77.7
+  },
+  {
+   "year": 2020,
+   "games": 4273,
+   "score": 78.8
+  },
+  {
+   "year": 2021,
+   "games": 4671,
+   "score": 79.4
+  },
+  {
+   "year": 2022,
+   "games": 5148,
+   "score": 78.8
+  },
+  {
+   "year": 2023,
+   "games": 5479,
+   "score": 79.1
+  },
+  {
+   "year": 2024,
+   "games": 7047,
+   "score": 79.8
+  },
+  {
+   "year": 2025,
+   "games": 7320,
+   "score": 81.2
+  },
+  {
+   "year": 2026,
+   "games": 7132,
+   "score": 81.3
+  }
+ ],
+ "size_buckets": [
+  {
+   "label": "20\u201399",
+   "games": 30885,
+   "score": 77.0
+  },
+  {
+   "label": "100\u2013999",
+   "games": 20516,
+   "score": 78.9
+  },
+  {
+   "label": "1k\u201310k",
+   "games": 6656,
+   "score": 83.2
+  },
+  {
+   "label": "10k+",
+   "games": 1796,
+   "score": 85.2
+  }
+ ],
+ "tags_best": [
+  {
+   "name": "Sokoban",
+   "n_games": 289,
+   "n_devs": 242,
+   "mean_score": 89.7,
+   "coef": 0.42
+  },
+  {
+   "name": "Traditional Roguelike",
+   "n_games": 116,
+   "n_devs": 107,
+   "mean_score": 84.3,
+   "coef": 0.337
+  },
+  {
+   "name": "Boomer Shooter",
+   "n_games": 292,
+   "n_devs": 259,
+   "mean_score": 85.4,
+   "coef": 0.324
+  },
+  {
+   "name": "Faith",
+   "n_games": 176,
+   "n_devs": 137,
+   "mean_score": 86.2,
+   "coef": 0.315
+  },
+  {
+   "name": "Classic",
+   "n_games": 739,
+   "n_devs": 397,
+   "mean_score": 82.7,
+   "coef": 0.292
+  },
+  {
+   "name": "Moddable",
+   "n_games": 300,
+   "n_devs": 271,
+   "mean_score": 81.5,
+   "coef": 0.241
+  }
+ ],
+ "tags_worst": [
+  {
+   "name": "MMORPG",
+   "n_games": 503,
+   "n_devs": 443,
+   "mean_score": 65.3,
+   "coef": -0.437
+  },
+  {
+   "name": "Massively Multiplayer",
+   "n_games": 1038,
+   "n_devs": 878,
+   "mean_score": 65.0,
+   "coef": -0.368
+  },
+  {
+   "name": "MOBA",
+   "n_games": 166,
+   "n_devs": 158,
+   "mean_score": 67.7,
+   "coef": -0.26
+  },
+  {
+   "name": "Remake",
+   "n_games": 123,
+   "n_devs": 102,
+   "mean_score": 79.4,
+   "coef": -0.259
+  },
+  {
+   "name": "Idler",
+   "n_games": 1865,
+   "n_devs": 1589,
+   "mean_score": 76.0,
+   "coef": -0.256
+  },
+  {
+   "name": "Trading Card Game",
+   "n_games": 283,
+   "n_devs": 253,
+   "mean_score": 73.2,
+   "coef": -0.255
+  }
+ ],
+ "pairs_best": [
+  {
+   "tags": [
+    "Massively Multiplayer",
+    "Loot"
+   ],
+   "n_games": 29,
+   "n_devs": 29,
+   "score": 72.5,
+   "predicted": 61.9,
+   "effect": 10.6,
+   "ci_low": 5.8,
+   "ci_high": 15.5
+  },
+  {
+   "tags": [
+    "Realistic",
+    "Incremental"
+   ],
+   "n_games": 28,
+   "n_devs": 26,
+   "score": 80.0,
+   "predicted": 71.5,
+   "effect": 8.5,
+   "ci_low": 4.1,
+   "ci_high": 12.8
+  },
+  {
+   "tags": [
+    "Board Game",
+    "Incremental"
+   ],
+   "n_games": 21,
+   "n_devs": 17,
+   "score": 86.6,
+   "predicted": 79.8,
+   "effect": 6.8,
+   "ci_low": 4.1,
+   "ci_high": 9.5
+  },
+  {
+   "tags": [
+    "MMORPG",
+    "Loot"
+   ],
+   "n_games": 42,
+   "n_devs": 39,
+   "score": 73.5,
+   "predicted": 65.7,
+   "effect": 7.8,
+   "ci_low": 3.8,
+   "ci_high": 11.8
+  },
+  {
+   "tags": [
+    "Horror",
+    "Medieval"
+   ],
+   "n_games": 20,
+   "n_devs": 20,
+   "score": 85.4,
+   "predicted": 79.4,
+   "effect": 6.1,
+   "ci_low": 3.5,
+   "ci_high": 8.6
+  },
+  {
+   "tags": [
+    "Tower Defense",
+    "VR"
+   ],
+   "n_games": 21,
+   "n_devs": 19,
+   "score": 82.8,
+   "predicted": 76.2,
+   "effect": 6.7,
+   "ci_low": 3.4,
+   "ci_high": 9.9
+  }
+ ],
+ "pairs_worst": [
+  {
+   "tags": [
+    "Trading",
+    "Incremental"
+   ],
+   "n_games": 37,
+   "n_devs": 36,
+   "score": 55.7,
+   "predicted": 72.4,
+   "effect": -16.7,
+   "ci_low": -21.1,
+   "ci_high": -12.4
+  },
+  {
+   "tags": [
+    "RPG",
+    "Desktop Companion"
+   ],
+   "n_games": 25,
+   "n_devs": 24,
+   "score": 64.5,
+   "predicted": 82.3,
+   "effect": -17.8,
+   "ci_low": -24.7,
+   "ci_high": -10.9
+  },
+  {
+   "tags": [
+    "Trading",
+    "Idler"
+   ],
+   "n_games": 46,
+   "n_devs": 45,
+   "score": 59.5,
+   "predicted": 74.5,
+   "effect": -15.0,
+   "ci_low": -19.9,
+   "ci_high": -10.1
+  },
+  {
+   "tags": [
+    "Romance",
+    "VR"
+   ],
+   "n_games": 32,
+   "n_devs": 29,
+   "score": 65.6,
+   "predicted": 79.0,
+   "effect": -13.4,
+   "ci_low": -17.7,
+   "ci_high": -9.2
+  },
+  {
+   "tags": [
+    "Loot",
+    "Desktop Companion"
+   ],
+   "n_games": 15,
+   "n_devs": 15,
+   "score": 63.5,
+   "predicted": 80.2,
+   "effect": -16.7,
+   "ci_low": -25.2,
+   "ci_high": -8.2
+  },
+  {
+   "tags": [
+    "Board Game",
+    "Anime"
+   ],
+   "n_games": 59,
+   "n_devs": 49,
+   "score": 71.6,
+   "predicted": 82.4,
+   "effect": -10.8,
+   "ci_low": -14.2,
+   "ci_high": -7.3
+  }
+ ],
+ "drift": {
+  "n": 949,
+  "median_drift": -1.7,
+  "pct_up5": 20.1,
+  "pct_down5": 31.3
+ },
+ "comebacks": [
+  {
+   "appid": 766570,
+   "name": "Russian Fishing 4",
+   "trough": 8.3,
+   "recent": 85.3,
+   "trough_month": "2024-04"
+  },
+  {
+   "appid": 1468810,
+   "name": "\u9b3c\u8c37\u516b\u8352 Tale of Immortal",
+   "trough": 4.2,
+   "recent": 76.9,
+   "trough_month": "2022-06"
+  },
+  {
+   "appid": 49520,
+   "name": "Borderlands 2",
+   "trough": 17.1,
+   "recent": 88.6,
+   "trough_month": "2025-06"
+  },
+  {
+   "appid": 440,
+   "name": "Team Fortress 2",
+   "trough": 27.2,
+   "recent": 93.7,
+   "trough_month": "2024-06"
+  },
+  {
+   "appid": 245170,
+   "name": "Skullgirls 2nd Encore",
+   "trough": 24.0,
+   "recent": 87.6,
+   "trough_month": "2023-06"
+  },
+  {
+   "appid": 1859910,
+   "name": "Legend of Mortal",
+   "trough": 30.1,
+   "recent": 93.0,
+   "trough_month": "2025-05"
+  }
+ ],
+ "turning_points": {
+  "n": 2234,
+  "pct_unmatched": 44.7
+ },
+ "bomb_clusters": [
+  {
+   "month": "2026-09",
+   "n": 13,
+   "avg_shift": -55.2,
+   "games": [
+    "Europa Universalis IV",
+    "Crusader Kings II",
+    "Hearts of Iron IV",
+    "Prison Architect",
+    "Cities: Skylines",
+    "Crusader Kings III",
+    "Stellaris",
+    "Victoria 3"
+   ],
+   "top_publisher": "Paradox Interactive",
+   "top_publisher_games": 8
+  },
+  {
+   "month": "2019-08",
+   "n": 7,
+   "avg_shift": -33.1,
+   "games": [
+    "Total War: WARHAMMER",
+    "Prison Architect",
+    "Total War: THREE KINGDOMS",
+    "Total War: ATTILA",
+    "Warhammer: Vermintide 2",
+    "Anno 1800",
+    "Total War: EMPIRE \u2013 Definitive Edition"
+   ],
+   "top_publisher": "SEGA",
+   "top_publisher_games": 4
+  },
+  {
+   "month": "2025-04",
+   "n": 7,
+   "avg_shift": -53.5,
+   "games": [
+    "Borderlands 2",
+    "Borderlands: The Pre-Sequel",
+    "TEKKEN 8",
+    "Borderlands 3",
+    "DJMAX RESPECT V",
+    "Path of Exile 2",
+    "NARAKA: BLADEPOINT"
+   ],
+   "top_publisher": "2K",
+   "top_publisher_games": 3
+  },
+  {
+   "month": "2022-09",
+   "n": 6,
+   "avg_shift": -44.1,
+   "games": [
+    "Mirror 2: Project X",
+    "Warframe",
+    "BioShock Infinite",
+    "The Scroll of Taiwu : Beyond The Dome",
+    "BioShock\u2122 2 Remastered",
+    "Mirror"
+   ],
+   "top_publisher": "2K",
+   "top_publisher_games": 2
+  }
+ ],
+ "tag_aging": [
+  {
+   "name": "City Builder",
+   "n": 9,
+   "early": 79.8,
+   "later": 89.8,
+   "change": 10.0
+  },
+  {
+   "name": "Strategy",
+   "n": 35,
+   "early": 77.6,
+   "later": 84.9,
+   "change": 7.3
+  },
+  {
+   "name": "FPS",
+   "n": 33,
+   "early": 78.5,
+   "later": 85.1,
+   "change": 6.6
+  },
+  {
+   "name": "Fighting",
+   "n": 8,
+   "early": 81.8,
+   "later": 87.7,
+   "change": 6.0
+  },
+  {
+   "name": "VR",
+   "n": 8,
+   "early": 88.1,
+   "later": 93.8,
+   "change": 5.7
+  },
+  {
+   "name": "Souls-like",
+   "n": 18,
+   "early": 82.0,
+   "later": 86.5,
+   "change": 4.5
+  },
+  {
+   "name": "Open World",
+   "n": 64,
+   "early": 79.7,
+   "later": 83.7,
+   "change": 4.1
+  },
+  {
+   "name": "Anime",
+   "n": 9,
+   "early": 78.0,
+   "later": 81.1,
+   "change": 3.0
+  },
+  {
+   "name": "Gore",
+   "n": 9,
+   "early": 85.1,
+   "later": 88.0,
+   "change": 2.9
+  },
+  {
+   "name": "Simulation",
+   "n": 31,
+   "early": 85.4,
+   "later": 88.2,
+   "change": 2.7
+  },
+  {
+   "name": "Action",
+   "n": 44,
+   "early": 85.4,
+   "later": 87.8,
+   "change": 2.4
+  },
+  {
+   "name": "Story Rich",
+   "n": 16,
+   "early": 90.9,
+   "later": 93.2,
+   "change": 2.3
+  },
+  {
+   "name": "Adventure",
+   "n": 12,
+   "early": 89.6,
+   "later": 91.8,
+   "change": 2.2
+  },
+  {
+   "name": "Psychological Horror",
+   "n": 10,
+   "early": 89.1,
+   "later": 90.9,
+   "change": 1.8
+  },
+  {
+   "name": "Racing",
+   "n": 18,
+   "early": 79.5,
+   "later": 81.1,
+   "change": 1.6
+  },
+  {
+   "name": "Choices Matter",
+   "n": 8,
+   "early": 89.4,
+   "later": 91.0,
+   "change": 1.6
+  },
+  {
+   "name": "Multiplayer",
+   "n": 40,
+   "early": 85.2,
+   "later": 86.6,
+   "change": 1.4
+  },
+  {
+   "name": "Co-op",
+   "n": 18,
+   "early": 84.3,
+   "later": 85.6,
+   "change": 1.3
+  },
+  {
+   "name": "Sandbox",
+   "n": 9,
+   "early": 90.9,
+   "later": 92.1,
+   "change": 1.2
+  },
+  {
+   "name": "Zombies",
+   "n": 16,
+   "early": 82.6,
+   "later": 83.4,
+   "change": 0.9
+  },
+  {
+   "name": "Action RPG",
+   "n": 11,
+   "early": 79.1,
+   "later": 79.3,
+   "change": 0.2
+  },
+  {
+   "name": "Free to Play",
+   "n": 76,
+   "early": 78.6,
+   "later": 78.3,
+   "change": -0.3
+  },
+  {
+   "name": "Open World Survival Craft",
+   "n": 13,
+   "early": 85.1,
+   "later": 84.5,
+   "change": -0.6
+  },
+  {
+   "name": "RPG",
+   "n": 44,
+   "early": 84.2,
+   "later": 83.5,
+   "change": -0.7
+  },
+  {
+   "name": "Puzzle",
+   "n": 8,
+   "early": 97.5,
+   "later": 96.4,
+   "change": -1.0
+  },
+  {
+   "name": "Visual Novel",
+   "n": 13,
+   "early": 95.8,
+   "later": 94.8,
+   "change": -1.0
+  },
+  {
+   "name": "Horror",
+   "n": 34,
+   "early": 89.3,
+   "later": 87.8,
+   "change": -1.5
+  },
+  {
+   "name": "Action Roguelike",
+   "n": 10,
+   "early": 93.8,
+   "later": 92.0,
+   "change": -1.8
+  },
+  {
+   "name": "Great Soundtrack",
+   "n": 12,
+   "early": 95.2,
+   "later": 92.4,
+   "change": -2.7
+  },
+  {
+   "name": "Survival",
+   "n": 25,
+   "early": 81.7,
+   "later": 78.7,
+   "change": -3.0
+  },
+  {
+   "name": "Online Co-Op",
+   "n": 8,
+   "early": 88.0,
+   "later": 81.9,
+   "change": -6.1
+  }
+ ],
+ "excluded_tags": [
+  "Utilities",
+  "Design & Illustration",
+  "Animation & Modeling",
+  "Video Production",
+  "Audio Production",
+  "Photo Editing",
+  "Software Training",
+  "Web Publishing",
+  "Game Development",
+  "Software",
+  "Accounting"
+ ]
+}

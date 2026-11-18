@@ -17,7 +17,8 @@ import {
   pairEdges,
 } from "../data/queries";
 import { effectTone, fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
-import { type TagIndex, useAsync, useTags } from "../lib/hooks";
+import { useAsync } from "../lib/hooks";
+import { type TagIndex, useTags } from "../lib/useTags";
 import { parseFilters, parseTags, toParams } from "../lib/urlState";
 
 const MAX_TAGS = 4;

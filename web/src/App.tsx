@@ -28,11 +28,16 @@ export function App() {
           ))}
         </nav>
       </header>
-      <main>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <main id="main" tabIndex={-1}>
         <Outlet />
       </main>
       <footer className="footer muted">
-        Data from the Steam store, collected Nov 2026. Not affiliated with Valve.
+        Data from the Steam store, collected Nov 2026. Not affiliated with Valve. ·{" "}
+        <NavLink to="/methodology">Methodology</NavLink> ·{" "}
+        <a href="https://github.com/LucasTyph/Game-Data">Source on GitHub</a>
       </footer>
     </div>
   );

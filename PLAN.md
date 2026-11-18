@@ -267,11 +267,10 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [x] Leaderboards (comebacks, declines, most improved, most consistent) and tag-aggregate trajectories
 
 ### M7 — Story and polish (2–3 days)
-- [ ] Findings and Methodology pages, Home page
-- [ ] Responsive and dark-mode pass, accessibility, performance
-- [ ] README with a GIF, architecture diagram and live link
-
-Total: roughly 3–4 weeks of part-time work. Each milestone produces something usable on its own.
+- [x] Findings page (8 findings; numbers generated into findings.json by `stp export`) and Methodology page
+- [x] Home page with headline cards and tool links
+- [x] Responsive and dark-mode pass, accessibility (skip link, focus rings, reduced motion, CVD-validated chart palette), code-split bundles
+- [x] README with screenshots, architecture and live links
 
 ---
 

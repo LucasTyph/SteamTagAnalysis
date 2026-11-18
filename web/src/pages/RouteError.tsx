@@ -19,3 +19,15 @@ export function RouteError() {
     </div>
   );
 }
+
+export function NotFound() {
+  return (
+    <section className="page">
+      <h1>Page not found</h1>
+      <p className="lede">
+        That page doesn&apos;t exist. Try the <Link to="/explore">Tag Explorer</Link> or the{" "}
+        <Link to="/findings">findings</Link>.
+      </p>
+    </section>
+  );
+}

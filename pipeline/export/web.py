@@ -5,6 +5,7 @@
 - combos.parquet     precomputed pair/triple statistics
 - tags.json          tag list with per-tag stats
 - meta.json          build/analysis settings, fit stats and counts
+- findings.json      numbers behind the Findings and Home pages
 - timelines/index.json        one summary row per timeline game
 - timelines/<appid>.json      monthly history, turning points, announcements (lazy-loaded)
 - timelines/tag_curves.json   average trajectory by primary tag
@@ -114,6 +115,11 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
         }
         (out_dir / "meta.json").write_text(json.dumps(meta, indent=2, default=str), "utf-8")
         _export_timelines(con, out_dir / "timelines")
+        from pipeline.export import findings
+
+        (out_dir / "findings.json").write_text(
+            json.dumps(findings.compute(con), indent=1, default=str), "utf-8"
+        )
     finally:
         con.close()
     return {p.name: p.stat().st_size for p in sorted(out_dir.iterdir())}

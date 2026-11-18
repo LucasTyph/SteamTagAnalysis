@@ -2,14 +2,17 @@ import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import { App } from "./App";
-import { Placeholder } from "./pages/Placeholder";
+import { Home } from "./pages/Home";
 import { Loading } from "./components/Loading";
-import { RouteError } from "./pages/RouteError";
+import { NotFound, RouteError } from "./pages/RouteError";
 import "./styles.css";
+import "./pages.css";
 
 // Data-heavy pages (DuckDB-WASM, charts) load on demand.
 const TagExplorer = lazy(() => import("./pages/TagExplorer").then((m) => ({ default: m.TagExplorer })));
 const Timelines = lazy(() => import("./pages/Timelines").then((m) => ({ default: m.Timelines })));
+const Findings = lazy(() => import("./pages/Findings").then((m) => ({ default: m.Findings })));
+const Methodology = lazy(() => import("./pages/Methodology").then((m) => ({ default: m.Methodology })));
 const HiddenGems = lazy(() => import("./pages/HiddenGems").then((m) => ({ default: m.HiddenGems })));
 const page = (el: JSX.Element) => <Suspense fallback={<Loading label="Loading page…" />}>{el}</Suspense>;
 
@@ -20,12 +23,13 @@ const router = createHashRouter([
     element: <App />,
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <Placeholder title="Steam Tag Analysis" /> },
+      { index: true, element: <Home /> },
       { path: "explore", element: page(<TagExplorer />) },
       { path: "gems", element: page(<HiddenGems />) },
       { path: "timelines", element: page(<Timelines />) },
-      { path: "findings", element: <Placeholder title="Findings" /> },
-      { path: "methodology", element: <Placeholder title="Methodology" /> },
+      { path: "findings", element: page(<Findings />) },
+      { path: "methodology", element: page(<Methodology />) },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

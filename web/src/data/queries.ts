@@ -1,7 +1,8 @@
 // Typed queries over the exported data. Every statistic is developer-clustered
 // like the pipeline: a developer's games are averaged first, then the stats are
 // computed across developers.
-import { dataUrl, query } from "./db";
+import { query } from "./db";
+import { dataUrl } from "./url";
 import { ci90, type Interval } from "./stats";
 
 export interface Tag {

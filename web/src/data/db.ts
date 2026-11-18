@@ -7,6 +7,8 @@ import mvpWorker from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url
 import ehWasm from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
 import mvpWasm from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 
+import { dataUrl } from "./url";
+
 const BUNDLES: duckdb.DuckDBBundles = {
   mvp: { mainModule: mvpWasm, mainWorker: mvpWorker },
   eh: { mainModule: ehWasm, mainWorker: ehWorker },
@@ -14,9 +16,7 @@ const BUNDLES: duckdb.DuckDBBundles = {
 
 const TABLES = ["games", "game_tags", "combos"] as const;
 
-export function dataUrl(file: string): string {
-  return new URL(`${import.meta.env.BASE_URL}data/${file}`, window.location.href).href;
-}
+export { dataUrl };
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 

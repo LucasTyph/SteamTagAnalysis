@@ -19,4 +19,5 @@ export const NEUTRAL = "rgb(150, 150, 160)";
 export const NEG = "rgb(214, 96, 77)";
 
 // Categorical colors for up to 4 compared series; mid-tones that read in both themes.
-export const SERIES_COLORS = ["#4a7fb5", "#d6604d", "#2f9e7a", "#a26bc6"];
+// Order validated for colour-vision deficiency (no red/green neighbours), light and dark.
+export const SERIES_COLORS = ["#4a7fb5", "#d6604d", "#a26bc6", "#2f9e7a"];

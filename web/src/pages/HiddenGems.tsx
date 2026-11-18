@@ -5,7 +5,8 @@ import { ErrorNote, Loading } from "../components/Loading";
 import { TagPicker } from "../components/TagPicker";
 import { type GemQuery, type PrecomputedCombo, type Tag, rankedCombos } from "../data/queries";
 import { fmtInt, fmtPct } from "../lib/format";
-import { type TagIndex, useAsync, useTags } from "../lib/hooks";
+import { useAsync } from "../lib/hooks";
+import { type TagIndex, useTags } from "../lib/useTags";
 import { exploreHref } from "../lib/urlState";
 
 export function HiddenGems() {

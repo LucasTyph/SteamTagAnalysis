@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS, type Filters, type Tag } from "../data/queries";
-import type { TagIndex } from "./hooks";
+import type { TagIndex } from "./useTags";
 
 /** `?tags=Roguelike,Deckbuilding` → Tag[] (unknown names are dropped). */
 export function parseTags(params: URLSearchParams, tags: TagIndex): Tag[] {

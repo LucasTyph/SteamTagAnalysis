@@ -1,5 +1,5 @@
 // Review-timeline data (web/public/data/timelines/), produced by `stp export`.
-import { dataUrl } from "./db";
+import { dataUrl } from "./url";
 
 export interface TimelineSummary {
   appid: number;
