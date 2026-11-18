@@ -8,7 +8,7 @@ scores move over time?
 - **Review Timelines**: month-by-month positive-review % for the top ~1,000 games, with patch
   notes marked on the chart.
 
-> Live demo: _coming soon_
+> **Live demo:** https://lucastyph.github.io/Game-Data/
 
 See [PLAN.md](PLAN.md) for the full design.
 
