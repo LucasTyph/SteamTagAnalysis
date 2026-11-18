@@ -251,8 +251,10 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - [x] Export to Parquet and JSON (`stp export`, ~4.8 MB)
 
 ### M4 — Tag Explorer + Hidden Gems pages (3–4 days)
-- [ ] DuckDB-WASM data layer, tag picker, combo stats, companions table, scatter plot, filters, URL state
-- [ ] Co-occurrence network
+- [x] DuckDB-WASM data layer (self-hosted engine, developer-clustered live queries), tag picker, combo stats, companions table, scatter, filters, URL state
+- [x] Co-occurrence network (landing state of the explorer)
+- [x] Hidden Gems / Cursed Combos page over the precomputed combos
+- [ ] Turn on GitHub Pages (source: GitHub Actions) and check the live deploy
 
 ### M5 — Timelines pipeline (1–2 days)
 - [ ] Timeline-set selection, histogram + news fetch stages (resumable, same queue)
