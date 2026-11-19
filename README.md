@@ -8,6 +8,7 @@ games and 120M reviews, and a static website that queries the results in the bro
 > **Live site: https://lucastyph.github.io/SteamTagAnalysis/**
 > · [Tag Explorer](https://lucastyph.github.io/SteamTagAnalysis/#/explore?tags=Tower%20Defense,VR)
 > · [Review Timelines](https://lucastyph.github.io/SteamTagAnalysis/#/timelines?games=275850)
+> · [New Releases](https://lucastyph.github.io/SteamTagAnalysis/#/releases)
 > · [Findings](https://lucastyph.github.io/SteamTagAnalysis/#/findings)
 > · [Methodology](https://lucastyph.github.io/SteamTagAnalysis/#/methodology)
 
@@ -85,7 +86,8 @@ Tests and lint: `ruff check . && pytest` and `cd web && npm run build`. CI runs 
 A scheduled workflow ([track.yml](.github/workflows/track.yml)) runs every day and follows **every newly released
 Steam game for its first year**. It finds new store pages, watches coming-soon games for their release, snapshots
 each tracked game's review totals, and keeps exact positive and negative counts per day. Data goes to the
-[`tracking-data`](../../tree/tracking-data) branch as plain CSV.
+[`tracking-data`](../../tree/tracking-data) branch as plain CSV. The [New Releases](https://lucastyph.github.io/SteamTagAnalysis/#/releases)
+page is rebuilt from it after every run.
 
 ```bash
 stp track seed --dir tracking-data    # one-time: start from the local cache

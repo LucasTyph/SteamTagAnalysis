@@ -153,3 +153,25 @@ def check(
         detail = f" Today's run stopped early: {runs[-1]['stop_reason']}."
     console.print(f"[red]Not complete:[/red] last completed run is {last or 'never'}.{detail}")
     raise typer.Exit(1)
+
+
+@track_app.command("export")
+def export(
+    dir: Dir = DEFAULT_DIR,
+    out: Annotated[Path, typer.Option(help="Output folder for the website.")] = ROOT
+    / "web"
+    / "public"
+    / "data"
+    / "releases",
+    min_reviews: Annotated[
+        int, typer.Option(help="List games with at least this many reviews.")
+    ] = 5,
+):
+    """Write the New Releases page data (meta, games, aggregates, per-game histories)."""
+    from pipeline.tracking import export as exporter
+
+    meta = exporter.run(TrackingStore(dir), out, min_reviews)
+    console.print(
+        f"[green]Exported to {out}[/green]: {meta['tracked']:,} tracked games, "
+        f"{meta['listed_games']:,} listed, data through {meta['data_through']}"
+    )

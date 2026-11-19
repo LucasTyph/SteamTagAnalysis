@@ -3,7 +3,11 @@ name: Deploy site to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["web/**", ".github/workflows/deploy.yml"]
+    paths: ["web/**", "pipeline/tracking/**", ".github/workflows/deploy.yml"]
+  # Redeploy after each daily tracking run so the New Releases page stays current.
+  workflow_run:
+    workflows: ["Track new releases"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -17,19 +21,34 @@ concurrency:
 
 jobs:
   build:
+    # Skip when a tracking run was cancelled or failed; the last deploy stays up.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v7
+
+      # New Releases data is generated from the tracking-data branch at build time,
+      # so main's history stays free of daily data.
+      - uses: actions/checkout@v7
+        with:
+          ref: tracking-data
+          path: tracking-data
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e .
+      - run: stp track export --dir tracking-data --out web/public/data/releases
+
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+        working-directory: web
       - run: npm run build
+        working-directory: web
         env:
           # Project site lives at https://<user>.github.io/<repo>/
           VITE_BASE: /${{ github.event.repository.name }}/

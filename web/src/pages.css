@@ -87,7 +87,7 @@ input:focus-visible,
 
 @media (min-width: 1000px) {
   .tool-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -341,4 +341,53 @@ input:focus-visible,
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
+}
+
+/* --- new releases --- */
+.settle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.settle {
+  min-width: 0;
+}
+
+.settle-stat {
+  margin: 0 0 4px;
+}
+
+.settle-stat .tone-positive {
+  color: var(--pos);
+}
+
+.settle-stat .tone-negative {
+  color: var(--neg);
+}
+
+.search {
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.game-detail h2 a {
+  color: var(--fg);
 }

@@ -314,7 +314,7 @@ first group protects the tracker, which can't recover days it misses.
   the issue.
 
 ### B. New features on the site
-- [ ] **P2.4 New Releases page** from the tracking data: per-game first-year curves at daily
+- [x] **P2.4 New Releases page** from the tracking data: per-game first-year curves at daily
   resolution; how % positive moves after week 1; early-access vs full launches; which genres
   collect reviews fastest. Needs an export step on the tracking branch (or in the workflow).
 - [ ] **P2.5 Timelines for the top 5,000 games** (~3 h fetch). Trim per-game news to the 15 latest

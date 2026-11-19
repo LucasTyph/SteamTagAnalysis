@@ -9,6 +9,7 @@ Layout (all plain CSV, sorted, so git stores small diffs):
 Files are per ISO week (e.g. 2026-W47) so none grows past a few MB: at ~200 releases
 a day, monthly files would reach ~55 MB, beyond GitHub's 50 MB warning.
     runs.csv                          one row per daily run
+    tags.csv                          Steam tag id → name (refreshed weekly)
     state.json                        app-list cursor and last run date
 """
 
@@ -43,6 +44,8 @@ class CatalogEntry:
     last_checked: str = ""
     tracked_from: str = ""  # set when tracking starts
     last_histogram: str = ""  # last time the daily review counts were fetched
+    tags: str = ""  # top tag ids by votes, ";"-separated (most-voted first)
+    early_access: str = ""  # "1" if Steam lists the game as early access, "0" if not
 
     def tracking_until(self) -> date | None:
         if not self.tracked_from or not self.release_date:
@@ -145,6 +148,15 @@ class TrackingStore:
     def save_catalog(self, catalog: dict[int, CatalogEntry]) -> None:
         rows = [asdict(catalog[a]) for a in sorted(catalog)]
         _write_csv(self.root / "catalog.csv", CATALOG_FIELDS, rows)
+
+    # --- tag names (refreshed weekly) ------------------------------------------------
+
+    def load_tag_names(self) -> dict[int, str]:
+        return {int(r["tagid"]): r["name"] for r in _read_csv(self.root / "tags.csv")}
+
+    def save_tag_names(self, names: dict[int, str]) -> None:
+        rows = [{"tagid": t, "name": names[t]} for t in sorted(names)]
+        _write_csv(self.root / "tags.csv", ["tagid", "name"], rows)
 
     # --- snapshots (append-only, one file per month) ---------------------------------
 

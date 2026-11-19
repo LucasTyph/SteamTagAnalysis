@@ -11,6 +11,7 @@ import "./pages.css";
 // Data-heavy pages (DuckDB-WASM, charts) load on demand.
 const TagExplorer = lazy(() => import("./pages/TagExplorer").then((m) => ({ default: m.TagExplorer })));
 const Timelines = lazy(() => import("./pages/Timelines").then((m) => ({ default: m.Timelines })));
+const Releases = lazy(() => import("./pages/Releases").then((m) => ({ default: m.Releases })));
 const Findings = lazy(() => import("./pages/Findings").then((m) => ({ default: m.Findings })));
 const Methodology = lazy(() => import("./pages/Methodology").then((m) => ({ default: m.Methodology })));
 const HiddenGems = lazy(() => import("./pages/HiddenGems").then((m) => ({ default: m.HiddenGems })));
@@ -27,6 +28,7 @@ const router = createHashRouter([
       { path: "explore", element: page(<TagExplorer />) },
       { path: "gems", element: page(<HiddenGems />) },
       { path: "timelines", element: page(<Timelines />) },
+      { path: "releases", element: page(<Releases />) },
       { path: "findings", element: page(<Findings />) },
       { path: "methodology", element: page(<Methodology />) },
       { path: "*", element: <NotFound /> },

@@ -5,6 +5,7 @@ const links = [
   { to: "/explore", label: "Tag Explorer" },
   { to: "/gems", label: "Hidden Gems" },
   { to: "/timelines", label: "Timelines" },
+  { to: "/releases", label: "New Releases" },
   { to: "/findings", label: "Findings" },
   { to: "/methodology", label: "Methodology" },
 ];

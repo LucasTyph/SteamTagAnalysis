@@ -101,6 +101,11 @@ def fake_steam(released_ids: set[int], calls: dict):
     def handler(req: httpx.Request) -> httpx.Response:
         url = str(req.url)
         calls.setdefault("urls", []).append(url)
+        if "GetTagList" in url:
+            calls.setdefault("taglist", 0)
+            calls["taglist"] += 1
+            tags = [{"tagid": 1, "name": "Indie"}, {"tagid": 2, "name": "Horror"}]
+            return httpx.Response(200, json={"response": {"tags": tags}})
         if "GetAppList" in url:
             calls.setdefault("since", []).append(req.url.params["if_modified_since"])
             return httpx.Response(200, json={"response": {"apps": [{"appid": 30}]}})
@@ -180,8 +185,8 @@ def test_daily_run_discovers_tracks_snapshots_and_counts(tmp_path):
 
 def test_daily_run_cut_short_resumes_next_day(tmp_path):
     store = seed_store(tmp_path)
-    # applist + 1 GetItems + 1 histogram, then out of requests
-    with make_client(fake_steam({10, 30}, {}), RunControl(max_requests=3)) as client:
+    # tag list + applist + 1 GetItems + 1 histogram, then out of requests
+    with make_client(fake_steam({10, 30}, {}), RunControl(max_requests=4)) as client:
         stats = run_daily(store, client, TODAY, "key", log=lambda m: None)
     assert stats["stop_reason"] and stats["histograms"] == 1
     assert stats["histograms_pending"] == 1
@@ -284,3 +289,110 @@ def test_check_command_reports_incomplete_days(tmp_path):
     assert runner.invoke(app, [*args, "--today", "2026-11-19"]).exit_code == 0
     result = runner.invoke(app, [*args, "--today", "2026-11-20"])
     assert result.exit_code == 1 and "2026-11-19" in result.output
+
+
+def test_tags_early_access_and_tag_names_are_stored(tmp_path):
+    store = seed_store(tmp_path)
+    calls: dict = {}
+    with make_client(fake_steam({10, 30}, calls)) as client:
+        run_daily(store, client, TODAY, "key", log=lambda m: None)
+    assert calls["taglist"] == 1
+    assert store.load_tag_names() == {1: "Indie", 2: "Horror"}
+    assert store.load_state()["tags_refreshed"] == TODAY.isoformat()
+    # tag list is weekly: not fetched again the next day
+    with make_client(fake_steam({10, 30}, calls)) as client:
+        run_daily(store, client, TODAY + timedelta(days=1), "key", log=lambda m: None)
+    assert calls["taglist"] == 1
+
+
+def test_update_meta_orders_tags_by_votes():
+    from pipeline.tracking.daily import update_meta
+
+    e = CatalogEntry(1, "a", RELEASED)
+    it = item(1, released=TODAY, tags=[{"tagid": 5, "weight": 10}, {"tagid": 9, "weight": 50}])
+    it["release"]["is_early_access"] = True
+    update_meta(e, it)
+    assert e.tags == "9;5" and e.early_access == "1"
+
+
+def test_export_builds_curves_and_flags_prior_reviews(tmp_path):
+    import json
+
+    from pipeline.tracking import export
+
+    store = TrackingStore(tmp_path / "t")
+    release = date(2026, 11, 1)
+    catalog = {}
+    for a in range(1, 31):  # 30 clean games, 10 reviews/day, positive share depends on appid
+        catalog[a] = CatalogEntry(
+            a,
+            f"G{a}",
+            RELEASED,
+            release_date=release.isoformat(),
+            tracked_from="2026-11-01",
+            last_histogram="2026-11-20",
+            tags="2;1",
+            early_access="1" if a % 2 else "0",
+        )
+    catalog[99] = CatalogEntry(
+        99,
+        "Old EA",
+        RELEASED,
+        release_date=release.isoformat(),
+        tracked_from="2026-11-01",
+        last_histogram="2026-11-20",
+    )
+    store.save_catalog(catalog)
+    store.save_tag_names({1: "Indie", 2: "Horror"})
+    rows = [
+        (a, release + timedelta(days=d), 7 + a % 3, 3 - a % 3)
+        for a in range(1, 31)
+        for d in range(20)
+    ]
+    rows.append((99, release - timedelta(days=10), 50, 5))  # reviews before "release"
+    store.upsert_daily(rows)
+    store.append_snapshots(date(2026, 11, 20), [(a, 200, 80) for a in [*range(1, 31), 99]])
+
+    meta = export.run(store, tmp_path / "out")
+    agg = json.loads((tmp_path / "out/aggregates.json").read_text())
+    assert meta["tracked"] == 31 and meta["clean"] == 30  # 99 has prior reviews
+    # day 0 has 10 reviews per game (< 20), so the curve starts on day 1 (20 reviews)
+    assert agg["curve_all"][0][0] == 1
+    day, n, p25, med, p75 = agg["curve_all"][1]
+    assert day == 2 and n == 30 and p25 <= med <= p75
+    settle_3_14 = agg["settle"][0]
+    assert settle_3_14["n"] == 30 and settle_3_14["median"] == 0.0  # constant daily mix
+    # 15 early-access and 15 full launches: both above the 10-game curve minimum
+    assert len(agg["curve_early_access"]) > 0 and len(agg["curve_full_launch"]) > 0
+    games = json.loads((tmp_path / "out/games.json").read_text())
+    assert {g["tag"] for g in games} == {"Horror", None}
+    hist = json.loads((tmp_path / "out/g/1.json").read_text())
+    assert hist["days"][0] == [0, 8, 2] and len(hist["days"]) == 20
+
+
+def test_settle_needs_25_games(tmp_path):
+    from pipeline.tracking import export
+
+    store = TrackingStore(tmp_path / "t")
+    release = date(2026, 11, 1)
+    store.save_catalog(
+        {
+            a: CatalogEntry(
+                a,
+                f"G{a}",
+                RELEASED,
+                release_date=release.isoformat(),
+                tracked_from="2026-11-01",
+                last_histogram="2026-11-20",
+            )
+            for a in range(1, 11)
+        }
+    )
+    store.upsert_daily(
+        [(a, release + timedelta(days=d), 8, 2) for a in range(1, 11) for d in range(20)]
+    )
+    export.run(store, tmp_path / "out")
+    import json
+
+    s = json.loads((tmp_path / "out/aggregates.json").read_text())["settle"][0]
+    assert s["n"] == 10 and "median" not in s

@@ -26,6 +26,7 @@ from pipeline.fetch.perapp import STAGES as PERAPP_STAGES
 from pipeline.tracking.store import COMING_SOON, RELEASED, CatalogEntry, TrackingStore
 
 APPLIST_URL = "https://api.steampowered.com/IStoreService/GetAppList/v1/"
+TAGLIST_URL = "https://api.steampowered.com/IStoreService/GetTagList/v1/"
 
 
 @dataclass(frozen=True)
@@ -95,6 +96,17 @@ def histogram_due(e: CatalogEntry, today: date, cfg: TrackingConfig = TRACKING) 
     return (today - last).days >= cfg.histogram_every_days
 
 
+def update_meta(entry: CatalogEntry, item: dict) -> None:
+    """Keep the game's top tags and early-access flag current (used by the site)."""
+    if item.get("missing") or item.get("success") != 1:
+        return
+    tags = sorted(item.get("tags") or [], key=lambda t: -int(t.get("weight", 0)))
+    if tags:
+        entry.tags = ";".join(str(int(t["tagid"])) for t in tags[:10])
+    release = item.get("release") or {}
+    entry.early_access = "1" if release.get("is_early_access") else "0"
+
+
 def apply_item(
     catalog: dict[int, CatalogEntry],
     appid: int,
@@ -103,6 +115,19 @@ def apply_item(
     cfg: TrackingConfig = TRACKING,
 ) -> str | None:
     """Update the catalog from one GetItems item. Returns 'tracked' if tracking started."""
+    result = _apply_status(catalog, appid, item, today, cfg)
+    if appid in catalog:
+        update_meta(catalog[appid], item)
+    return result
+
+
+def _apply_status(
+    catalog: dict[int, CatalogEntry],
+    appid: int,
+    item: dict,
+    today: date,
+    cfg: TrackingConfig,
+) -> str | None:
     parsed = classify(item)
     entry = catalog.get(appid)
     iso = today.isoformat()
@@ -238,6 +263,15 @@ def run_daily(
         return stats
 
     try:
+        # 0. Tag names for the site, refreshed weekly (one request).
+        refreshed = state.get("tags_refreshed")
+        if not refreshed or (today - date.fromisoformat(refreshed)).days >= 7:
+            _, body = client.get_json(TAGLIST_URL, {"language": "english"})
+            tags = (body.get("response") or {}).get("tags") or [] if isinstance(body, dict) else []
+            if tags:
+                store.save_tag_names({int(t["tagid"]): t["name"] for t in tags})
+                state["tags_refreshed"] = today.isoformat()
+
         # 1. Discover new and changed pages.
         run_started = int(time.time())
         discovered: list[int] = []
@@ -279,6 +313,7 @@ def run_daily(
             rows.append((a, count, pct))
             if item:
                 catalog[a].last_checked = today.isoformat()
+                update_meta(catalog[a], item)
         stats["snapshots"] = store.append_snapshots(today, rows)
         log(f"snapshot: {stats['snapshots']:,} of {len(tracked):,} tracked games")
         store.save_catalog(catalog)

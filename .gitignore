@@ -25,3 +25,6 @@ Thumbs.db
 
 # release tracking data lives on the tracking-data branch
 tracking-data/
+
+# New Releases data is generated from the tracking-data branch at deploy time
+web/public/data/releases/

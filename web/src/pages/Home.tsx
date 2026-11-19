@@ -21,6 +21,11 @@ const TOOLS = [
     text: "Month-by-month reception of the 1,000 most-reviewed games, with turning points and patches.",
   },
   {
+    to: "/releases",
+    title: "New Releases",
+    text: "Every new Steam game followed day by day for its first year, updated daily.",
+  },
+  {
     to: "/findings",
     title: "Findings",
     text: "Eight things the data says, from review bombs to which genres age well.",
