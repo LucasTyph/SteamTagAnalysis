@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from pipeline import db
-from pipeline.config import ANALYSIS_DB_PATH, BUILD, BuildConfig
+from pipeline.config import ANALYSIS_DB_PATH, BUILD, LAUNCH_DATES_PATH, BuildConfig
 
 STEAM_TYPE_GAME = 0
 
@@ -152,6 +152,7 @@ def run(
     sqlite_conn: sqlite3.Connection,
     out_path: Path = ANALYSIS_DB_PATH,
     cfg: BuildConfig = BUILD,
+    launch_dates: Path | None = LAUNCH_DATES_PATH,
 ) -> dict[str, int]:
     """Rebuild every table from scratch. Returns row counts."""
     import duckdb
@@ -174,6 +175,7 @@ def run(
         for key, body in db.iter_raw(sqlite_conn, "histogram")
         for row in timelines.parse_histogram(int(key), body)
     ]
+    first_reviews = _first_reviews(sqlite_conn, launch_dates)
     news = [
         row
         for key, body in db.iter_raw(sqlite_conn, "news")
@@ -217,6 +219,7 @@ def run(
             ORDER BY g.appid
             """
         )
+        _apply_launch_dates(con, first_reviews)
         con.execute("CREATE TABLE game_tags AS SELECT * FROM tags_arrow ORDER BY appid, rank")
         con.execute(
             """
@@ -259,8 +262,18 @@ def run(
         )
         con.execute(
             "CREATE TABLE build_info AS SELECT ? AS built_at, ? AS min_reviews, "
-            "? AS tag_max_rank, ? AS tag_min_share",
-            [datetime.now(UTC).isoformat(), cfg.min_reviews, cfg.tag_max_rank, cfg.tag_min_share],
+            "? AS tag_max_rank, ? AS tag_min_share, "
+            "COUNT(first_review) FILTER (WHERE review_count >= ?) AS launch_dates, "
+            "COUNT(*) FILTER (WHERE launch_source = 'first_review' AND review_count >= ?) "
+            "AS launch_corrected FROM games",
+            [
+                datetime.now(UTC).isoformat(),
+                cfg.min_reviews,
+                cfg.tag_max_rank,
+                cfg.tag_min_share,
+                cfg.min_reviews,
+                cfg.min_reviews,
+            ],
         )
         counts = {
             "games": len(games),
@@ -271,6 +284,12 @@ def run(
             "tags": len(tag_names),
             "with_developer": sum(1 for c in creators if c["dev_key"]),
             "timeline_games": len({r[0] for r in monthly}),
+            "first_reviews": len(first_reviews),
+            "launch_corrected": con.execute(
+                "SELECT COUNT(*) FROM games WHERE launch_source = 'first_review' "
+                "AND review_count >= ?",
+                [cfg.min_reviews],
+            ).fetchone()[0],
             "news": len(news),
         }
     finally:
@@ -278,3 +297,51 @@ def run(
     out_path.unlink(missing_ok=True)
     tmp.replace(out_path)
     return counts
+
+
+# A first review this much earlier than Steam's date means the store date is a later
+# (1.0 or re-release) date; smaller gaps are date noise and keep Steam's date.
+LAUNCH_GAP_DAYS = 30
+
+
+def _first_reviews(sqlite_conn: sqlite3.Connection, csv_path: Path | None) -> dict[int, date]:
+    """First-review day per game: local review histograms, then the backfilled CSV."""
+    from pipeline.tracking import launch
+
+    out: dict[int, date] = {}
+    if csv_path is not None and csv_path.exists():
+        out.update({a: d for a, d in launch.load_file(csv_path).items() if d})
+    for key, body in db.iter_raw(sqlite_conn, "histogram"):
+        if d := launch.first_review(body):
+            out[int(key)] = d
+    return out
+
+
+def _apply_launch_dates(con, first_reviews: dict[int, date]) -> None:
+    """Keep Steam's date as `steam_release`; move `first_release` back to the first
+    review when that is more than LAUNCH_GAP_DAYS earlier (early access Steam no
+    longer reports)."""
+    import pyarrow as pa
+
+    fr_arrow = pa.table(  # noqa: F841 — referenced by DuckDB SQL
+        {
+            "appid": pa.array(list(first_reviews), pa.int64()),
+            "first_review": pa.array(list(first_reviews.values()), pa.date32()),
+        }
+    )
+    con.execute(
+        f"""
+        CREATE OR REPLACE TABLE games AS
+        SELECT g.* EXCLUDE (first_release),
+               CASE WHEN f.first_review < g.first_release::DATE - INTERVAL {LAUNCH_GAP_DAYS} DAY
+                         OR (g.first_release IS NULL AND f.first_review IS NOT NULL)
+                    THEN f.first_review::TIMESTAMP ELSE g.first_release END AS first_release,
+               g.first_release AS steam_release,
+               f.first_review,
+               CASE WHEN f.first_review < g.first_release::DATE - INTERVAL {LAUNCH_GAP_DAYS} DAY
+                         OR (g.first_release IS NULL AND f.first_review IS NOT NULL)
+                    THEN 'first_review' ELSE 'steam' END AS launch_source
+        FROM games g LEFT JOIN fr_arrow f USING (appid)
+        ORDER BY g.appid
+        """
+    )

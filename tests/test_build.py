@@ -112,7 +112,7 @@ def test_run_writes_duckdb(tmp_path):
             },
         )
     out = tmp_path / "analysis.duckdb"
-    counts = run(conn, out, CFG)
+    counts = run(conn, out, CFG, launch_dates=None)
     assert counts["games"] == 2 and counts["games_min_reviews"] == 1
 
     con = duckdb.connect(str(out), read_only=True)
@@ -157,7 +157,7 @@ def test_games_without_developer_get_own_cluster(tmp_path):
         )
         db.put_raw(conn, "taglist", "english", 200, {"response": {"tags": []}})
     out = tmp_path / "a.duckdb"
-    run(conn, out, CFG)
+    run(conn, out, CFG, launch_dates=None)
     con = duckdb.connect(str(out), read_only=True)
     assert con.execute("SELECT appid, dev_key FROM games ORDER BY appid").fetchall() == [
         (1, "clan:9"),
@@ -216,3 +216,37 @@ def test_parse_histogram_and_news():
         },
     )
     assert len(news) == 1 and news[0][5] == "update"
+
+
+def test_launch_dates_move_back_only_for_large_gaps():
+    from datetime import date, datetime
+
+    import duckdb
+
+    from pipeline.build.tables import _apply_launch_dates
+
+    con = duckdb.connect()
+    con.execute("CREATE TABLE games (appid BIGINT, first_release TIMESTAMP)")
+    con.executemany(
+        "INSERT INTO games VALUES (?, ?)",
+        [
+            (1, datetime(2018, 2, 8)),  # left early access: Steam shows the 1.0 date
+            (2, datetime(2020, 5, 10)),  # first review a few days early: keep Steam's
+            (3, None),  # no Steam date at all
+            (4, datetime(2004, 11, 16)),  # older than Steam reviews: keep Steam's
+        ],
+    )
+    _apply_launch_dates(
+        con,
+        {1: date(2013, 12, 11), 2: date(2020, 5, 1), 3: date(2015, 3, 3), 4: date(2010, 10, 15)},
+    )
+    rows = con.execute(
+        "SELECT appid, first_release::DATE, steam_release::DATE, launch_source FROM games "
+        "ORDER BY appid"
+    ).fetchall()
+    assert rows == [
+        (1, date(2013, 12, 11), date(2018, 2, 8), "first_review"),
+        (2, date(2020, 5, 10), date(2020, 5, 10), "steam"),
+        (3, date(2015, 3, 3), None, "first_review"),
+        (4, date(2004, 11, 16), date(2004, 11, 16), "steam"),
+    ]

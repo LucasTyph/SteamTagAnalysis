@@ -175,3 +175,56 @@ def export(
         f"[green]Exported to {out}[/green]: {meta['tracked']:,} tracked games, "
         f"{meta['listed_games']:,} listed, data through {meta['data_through']}"
     )
+
+
+GAMES_PARQUET = ROOT / "web" / "public" / "data" / "games.parquet"
+
+
+@track_app.command("launch-dates")
+def launch_dates(
+    dir: Dir = DEFAULT_DIR,
+    games: Annotated[
+        Path, typer.Option(help="Parquet file listing the games (appid, review_count).")
+    ] = GAMES_PARQUET,
+    budget: Annotated[
+        str | None, typer.Option("--budget", "-b", help="Stop after this long, e.g. 4h.")
+    ] = None,
+    max_requests: Annotated[int | None, typer.Option("--max-requests")] = None,
+):
+    """Backfill first-review dates (most-reviewed games first). Resumable."""
+    import pyarrow.parquet as pq
+
+    from pipeline.tracking import launch
+
+    t = pq.read_table(games, columns=["appid", "review_count"]).to_pylist()
+    appids = [int(r["appid"]) for r in sorted(t, key=lambda r: (-r["review_count"], r["appid"]))]
+    control = RunControl(
+        budget_s=parse_duration(budget) if budget else None, max_requests=max_requests
+    )
+    with control.handle_sigint(), SteamClient(control) as client:
+        stats = launch.backfill(
+            dir, appids, client, datetime.now(UTC).date(), log=lambda m: console.print(f"  {m}")
+        )
+    console.print(
+        f"[green]Done[/green]: {stats['fetched']:,} fetched, {stats['errors']:,} errors, "
+        f"{stats['pending']:,} still to go"
+    )
+
+
+@track_app.command("launch-seed")
+def launch_seed(dir: Dir = DEFAULT_DIR):
+    """Add first-review dates from review histograms already in the local cache."""
+    from pipeline import db
+    from pipeline.tracking import launch
+
+    conn = db.connect()
+    rows = conn.execute(
+        "SELECT key, body_gz, fetched_at FROM raw_responses "
+        "WHERE kind = 'histogram' AND status_code = 200"
+    )
+    bodies = (
+        (int(k), json.loads(gzip.decompress(b)), datetime.fromtimestamp(f, tz=UTC).date())
+        for k, b, f in rows
+    )
+    n = launch.seed_from_histograms(dir, bodies)
+    console.print(f"[green]Added {n:,} dates[/green] to {dir / launch.FILE}")

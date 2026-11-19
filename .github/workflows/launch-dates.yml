@@ -1,0 +1,59 @@
+name: Backfill launch dates
+
+# Fetches each analysed game's first-review date (the real launch of early-access
+# games), a slice per day, most-reviewed games first. Resumes where the last run
+# stopped; once every game has a date, runs finish in a minute. Results go to
+# launch/first_reviews.csv on the `tracking-data` branch, and `stp build` reads them.
+on:
+  schedule:
+    - cron: "47 0 * * *" # 00:47 UTC, away from the release tracker's runs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: launch-dates
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 270
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          ref: tracking-data
+          path: tracking-data
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -e . pyarrow
+
+      - name: Fetch first-review dates
+        # `exec` so stp receives the cancel signal and saves before exiting.
+        run: exec stp track launch-dates --dir tracking-data --budget 4h
+
+      - name: Commit data
+        if: always()
+        working-directory: tracking-data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add launch
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -q -m "Launch dates $(date -u +%F)"
+          # The release tracker pushes to the same branch (different files): rebase and retry.
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin tracking-data && git push -q origin tracking-data && exit 0
+            sleep 15
+          done
+          exit 1

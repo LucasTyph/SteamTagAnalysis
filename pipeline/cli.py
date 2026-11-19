@@ -276,6 +276,10 @@ def build():
         f"{BUILD.min_reviews}+ reviews) | game_tags: {counts['game_tags']:,} | "
         f"tags: {counts['tags']:,}"
     )
+    console.print(
+        f"  launch dates: {counts['first_reviews']:,} first-review dates, "
+        f"{counts['launch_corrected']:,} games launched 30+ days before Steam's date"
+    )
 
 
 @app.command()

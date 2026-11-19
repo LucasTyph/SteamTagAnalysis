@@ -323,7 +323,7 @@ first group protects the tracker, which can't recover days it misses.
   mixes it belongs to, and its timeline when available.
 
 ### C. Better analysis
-- [ ] **P2.7 Real launch dates for early-access games** from the first month of review history
+- [x] **P2.7 Real launch dates for early-access games** from the first month of review history
   (fetched gradually through the scheduled workflow for all ~60k games).
 - [ ] **P2.8 Stronger mix model** with explicit, regularised pair terms so effect sizes are no longer
   lower bounds; validate on planted effects and document it on the Methodology page.

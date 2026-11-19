@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 DB_PATH = DATA_DIR / "steam.sqlite"
+# First-review dates backfilled by the scheduled workflow (tracking-data branch worktree).
+LAUNCH_DATES_PATH = ROOT / "tracking-data" / "launch" / "first_reviews.csv"
 
 load_dotenv(ROOT / ".env")
 

@@ -1,18 +1,20 @@
 {
   "build": {
-    "built_at": "2026-11-19T21:03:31.614691+00:00",
+    "built_at": "2026-11-19T21:57:30.178676+00:00",
     "min_reviews": 20,
     "tag_max_rank": 10,
-    "tag_min_share": null
+    "tag_min_share": null,
+    "launch_dates": 5000,
+    "launch_corrected": 446
   },
   "analysis": {
-    "analyzed_at": "2026-11-19T21:03:45.840357+00:00",
+    "analyzed_at": "2026-11-19T21:57:44.488962+00:00",
     "n_games": 59853,
     "prior_alpha": 5.577367944295471,
     "prior_beta": 1.5305445015167478,
     "ridge_alpha": 10,
-    "r2": 0.3059313275114859,
-    "cv_r2": 0.2954226415979929,
+    "r2": 0.30604487067823105,
+    "cv_r2": 0.29553496623688025,
     "min_support": 15,
     "min_devs": 5,
     "ci_level": 0.9,

@@ -27,6 +27,8 @@ export function Methodology() {
   const priorMean = (100 * alpha) / (alpha + beta);
   const strength = alpha + beta;
   const built = String(b.built_at ?? "").slice(0, 10);
+  const launchDates = Number(b.launch_dates ?? 0);
+  const launchCorrected = Number(b.launch_corrected ?? 0);
 
   return (
     <section className="page prose">
@@ -162,8 +164,19 @@ export function Methodology() {
           <strong>Tags are today's tags,</strong> not the ones a game had at launch.
         </li>
         <li>
-          <strong>Release dates:</strong> Steam doesn't return early-access start dates for many older games (Rust shows
-          2018, not 2013), so the release-year control is approximate.
+          <strong>Release dates:</strong> for many games that left early access, Steam only returns the 1.0 date (Rust
+          shows 2018, not 2013). A game's launch is therefore its first review when that is more than a month earlier.{" "}
+          {launchDates >= 0.995 * meta.counts.games ? (
+            <>
+              That moved {fmtInt(launchCorrected)} of {fmtInt(meta.counts.games)} launches earlier.
+            </>
+          ) : (
+            <>
+              First-review dates are being collected a slice a day for every game: {fmtInt(launchDates)} of{" "}
+              {fmtInt(meta.counts.games)} so far, which moved {fmtInt(launchCorrected)} launches earlier. Games still
+              without one use Steam's date.
+            </>
+          )}
         </li>
         <li>
           <strong>Developer clustering has gaps:</strong> some studios publish each game under its own name, so a series

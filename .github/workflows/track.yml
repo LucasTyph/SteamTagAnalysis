@@ -60,7 +60,12 @@ jobs:
             exit 0
           fi
           git commit -q -m "Tracking run $(date -u +%F)"
-          git push -q origin tracking-data
+          # The launch-date backfill pushes to the same branch (different files): rebase and retry.
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin tracking-data && git push -q origin tracking-data && exit 0
+            sleep 15
+          done
+          exit 1
 
       # --- Alerts: a `tracking-alert` issue (GitHub emails you about it) -----------------
 
