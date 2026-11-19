@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS meta (
 def connect(path: Path | str = DB_PATH) -> sqlite3.Connection:
     if str(path) != ":memory:":
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path, isolation_level=None)  # explicit transactions only
+    # explicit transactions only; wait up to 30 s for another process's write lock
+    conn = sqlite3.connect(path, isolation_level=None, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")

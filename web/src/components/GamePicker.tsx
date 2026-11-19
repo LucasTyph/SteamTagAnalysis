@@ -77,7 +77,7 @@ export function GamePicker({ games, selected, onChange, max = 4 }: Props) {
           <input
             ref={inputRef}
             value={text}
-            placeholder={selected.length ? "Compare with another game…" : "Search the 1,000 most-reviewed games…"}
+            placeholder={selected.length ? "Compare with another game…" : `Search the ${games.length.toLocaleString("en-US")} most-reviewed games…`}
             onChange={(e) => {
               setText(e.target.value);
               setOpen(true);

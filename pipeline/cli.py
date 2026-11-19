@@ -179,6 +179,13 @@ def fetch_basic(
 @fetch_app.command("timelines")
 def fetch_timelines(
     top: Annotated[int, typer.Option(help="How many of the most-reviewed games.")] = 1000,
+    stage: Annotated[
+        str | None,
+        typer.Option(
+            help="Only run one stage (histogram or news), e.g. to run both in parallel: "
+            "they use different Steam hosts with separate rate limits."
+        ),
+    ] = None,
     retry_failed: Annotated[bool, typer.Option(help="Re-queue failed jobs first.")] = False,
     stale_after: Annotated[
         str | None, typer.Option(help="Re-fetch games older than this, e.g. 30d.")
@@ -196,9 +203,12 @@ def fetch_timelines(
             jobs.retry_failed(conn, kind)
         if stale_after:
             jobs.requeue_stale(conn, kind, parse_duration(stale_after))
+    if stage is not None and stage not in perapp.STAGES:
+        raise typer.BadParameter(f"stage must be one of {', '.join(perapp.STAGES)}")
+    kinds = [stage] if stage else list(perapp.STAGES)
     control = _control(budget, max_requests)
     with control.handle_sigint(), SteamClient(control) as client:
-        for kind in perapp.STAGES:
+        for kind in kinds:
             pending = jobs.pending_count(conn, kind)
             if not pending:
                 continue

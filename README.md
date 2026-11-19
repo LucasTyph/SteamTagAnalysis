@@ -22,7 +22,7 @@ games and 120M reviews, and a static website that queries the results in the bro
   its tags, and a tag mix's *effect* is how far its games beat that prediction. Statistics are **clustered by
   developer**: one studio's 30 near-identical games once topped the rankings, so each developer now counts once.
   Rankings use 90% CIs with Benjamini–Hochberg false-discovery control.
-- **Turning points in 1,000 review histories.** PELT change-point detection on monthly review scores, matched to the
+- **Turning points in 5,000 review histories.** PELT change-point detection on monthly review scores, matched to the
   nearest developer update. It recovers No Man's Sky's comeback patch by patch, Cyberpunk 2077's recovery, and
   publisher-wide review bombs.
 - **Pausable data collection.** Every fetch stage is a persistent job queue in SQLite; results and "done" flags
@@ -66,7 +66,7 @@ cp .env.example .env                                  # add a free Steam Web API
 
 ```bash
 stp fetch all --budget 30m      # app list → tag list → store details → developers (resumable)
-stp fetch timelines             # review history + announcements for the top 1,000 games
+stp fetch timelines --top 5000 # review history + announcements for the top 5,000 games
 stp status                      # progress per stage
 stp build && stp analyze && stp export
 ```

@@ -51,7 +51,12 @@ export interface TagCurve {
 
 let indexPromise: Promise<TimelineSummary[]> | null = null;
 export function loadTimelineIndex(): Promise<TimelineSummary[]> {
-  indexPromise ??= fetch(dataUrl("timelines/index.json")).then((r) => r.json());
+  // Stored column-oriented ({cols, rows}) to keep the download small.
+  indexPromise ??= fetch(dataUrl("timelines/index.json"))
+    .then((r) => r.json())
+    .then((d: { cols: (keyof TimelineSummary)[]; rows: unknown[][] }) =>
+      d.rows.map((row) => Object.fromEntries(d.cols.map((c, i) => [c, row[i]])) as unknown as TimelineSummary),
+    );
   return indexPromise;
 }
 

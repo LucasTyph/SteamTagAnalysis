@@ -18,7 +18,7 @@ const TOOLS = [
   {
     to: "/timelines",
     title: "Review Timelines",
-    text: "Month-by-month reception of the 1,000 most-reviewed games, with turning points and patches.",
+    text: "Month-by-month reception of the 5,000 most-reviewed games, with turning points and patches.",
   },
   {
     to: "/releases",

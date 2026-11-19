@@ -68,10 +68,10 @@ export function Methodology() {
         </li>
         <li>
           <strong>Review history</strong> (<code>appreviewhistogram</code>): monthly positive and negative review counts
-          over each game's life, for the 1,000 most-reviewed games.
+          over each game's life, for the 5,000 most-reviewed games (about 2,300 reviews or more).
         </li>
         <li>
-          <strong>Announcements</strong> (<code>ISteamNews</code>): developer news posts for the same 1,000 games.
+          <strong>Announcements</strong> (<code>ISteamNews</code>): developer news posts for the same 5,000 games.
         </li>
       </ul>
       <p>
@@ -174,7 +174,7 @@ export function Methodology() {
           qualities the tags don't capture.
         </li>
         <li>
-          <strong>Timelines cover the 1,000 most-reviewed games,</strong> which skews toward big, long-running titles.
+          <strong>Timelines cover the 5,000 most-reviewed games,</strong> which skews toward big, long-running titles. Smaller games have quiet months below the 20-review minimum, so their charts have gaps.
         </li>
       </ul>
 
@@ -182,7 +182,7 @@ export function Methodology() {
       <pre>
         <code>{`pip install -e ".[analysis,dev]"
 stp fetch all            # app list, tags, reviews, developers (resumable)
-stp fetch timelines      # review history + news for the top 1,000
+stp fetch timelines --top 5000   # review history + news
 stp build && stp analyze && stp export`}</code>
       </pre>
       <p>

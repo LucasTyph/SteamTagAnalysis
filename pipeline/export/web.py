@@ -129,7 +129,7 @@ def _r(v, digits=1):
     return None if v is None else round(float(v), digits)
 
 
-def _export_timelines(con, out: Path, max_news: int = 40) -> None:
+def _export_timelines(con, out: Path, max_news: int = 15) -> None:
     has = con.execute(
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'timeline_games'"
     ).fetchone()[0]
@@ -175,7 +175,10 @@ def _export_timelines(con, out: Path, max_news: int = 40) -> None:
                 "tags": list(r[17] or []),
             }
         )
-    (out / "index.json").write_text(json.dumps(index, separators=(",", ":")), "utf-8")
+    # Column-oriented: field names once, then one array per game (about half the size).
+    cols = list(index[0]) if index else []
+    compact = {"cols": cols, "rows": [[g[c] for c in cols] for g in index]}
+    (out / "index.json").write_text(json.dumps(compact, separators=(",", ":")), "utf-8")
 
     monthly: dict[int, list] = {}
     for appid, month, up, down in con.execute(

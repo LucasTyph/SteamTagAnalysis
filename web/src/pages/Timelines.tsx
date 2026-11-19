@@ -373,7 +373,7 @@ function TagTrajectories() {
       <h2>Do some genres age better?</h2>
       <p className="muted small">
         Average monthly score by months since first review, grouped by each game's most-voted tag (tags with at least
-        8 games among the top 1,000). Pick up to 4; with one selected, the band shows the middle half of games.
+        8 games among the most-reviewed games). Pick up to 4; with one selected, the band shows the middle half of games.
       </p>
       <div className="starters">
         {all.map((c) => (
