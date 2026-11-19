@@ -136,7 +136,8 @@ def compute(con) -> dict:
             SELECT strftime(month, '%Y-%m') AS month, COUNT(*) AS n, AVG(shift) AS avg_shift,
                    list(name ORDER BY shift, name)[1:8] AS games,
                    (SELECT b2.publisher FROM big b2 WHERE b2.month = big.month
-                    GROUP BY b2.publisher ORDER BY COUNT(*) DESC, b2.publisher LIMIT 1) AS top_publisher
+                    GROUP BY b2.publisher ORDER BY COUNT(*) DESC, b2.publisher LIMIT 1)
+                   AS top_publisher
             FROM big GROUP BY month HAVING COUNT(*) >= 4 ORDER BY n DESC, avg_shift, month LIMIT 4
             """,
         )
