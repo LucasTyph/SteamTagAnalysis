@@ -1,6 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { type ReactNode, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { BarList } from "../components/BarList";
 import { EffectBar } from "../components/EffectBar";
 import { ErrorNote, Loading } from "../components/Loading";
 import { type ComboFinding, type Findings as Data, loadFindings } from "../data/findings";
@@ -270,44 +271,6 @@ function ComboList({ combos }: { combos: ComboFinding[] }) {
 }
 
 /** Horizontal bars as HTML (labels in text ink; value printed). */
-function BarList({
-  rows,
-  diverging = false,
-}: {
-  rows: { label: string; value: number; note?: string }[];
-  diverging?: boolean;
-}) {
-  const max = Math.max(...rows.map((r) => Math.abs(r.value)));
-  return (
-    <ul className={`bar-list${diverging ? " diverging" : ""}`}>
-      {rows.map((r) => {
-        // Bars start at zero (percent scale), so lengths compare honestly.
-        const pct = diverging ? (Math.abs(r.value) / max) * 50 : Math.max(0, Math.min(100, r.value));
-        const tone = diverging ? (r.value >= 0 ? "positive" : "negative") : "neutral";
-        return (
-          <li key={r.label}>
-            <span className="bar-label">{r.label}</span>
-            <span className="bar-track">
-              <span
-                className={`bar tone-${tone}`}
-                style={
-                  diverging
-                    ? r.value >= 0
-                      ? { left: "50%", width: `${pct}%` }
-                      : { left: `${50 - pct}%`, width: `${pct}%` }
-                    : { left: 0, width: `${pct}%` }
-                }
-              />
-            </span>
-            <span className="bar-value">{diverging ? fmtPp(r.value) : fmtPct(r.value)}</span>
-            {r.note && <span className="bar-note muted">{r.note}</span>}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 function YearChart({ data }: { data: Data["year_trend"] }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {

@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 const links = [
   { to: "/explore", label: "Tag Explorer" },
   { to: "/gems", label: "Hidden Gems" },
+  { to: "/games", label: "Games" },
   { to: "/timelines", label: "Timelines" },
   { to: "/releases", label: "New Releases" },
   { to: "/findings", label: "Findings" },

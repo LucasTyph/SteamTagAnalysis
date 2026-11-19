@@ -7,6 +7,7 @@ games and 120M reviews, and a static website that queries the results in the bro
 
 > **Live site: https://lucastyph.github.io/SteamTagAnalysis/**
 > · [Tag Explorer](https://lucastyph.github.io/SteamTagAnalysis/#/explore?tags=Tower%20Defense,VR)
+> · [Game Lookup](https://lucastyph.github.io/SteamTagAnalysis/#/games/1145360)
 > · [Review Timelines](https://lucastyph.github.io/SteamTagAnalysis/#/timelines?games=275850)
 > · [New Releases](https://lucastyph.github.io/SteamTagAnalysis/#/releases)
 > · [Findings](https://lucastyph.github.io/SteamTagAnalysis/#/findings)

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CompanionScatter } from "../components/CompanionScatter";
 import { EffectBar } from "../components/EffectBar";
 import { FiltersBar } from "../components/FiltersBar";
@@ -16,10 +16,10 @@ import {
   loadMeta,
   pairEdges,
 } from "../data/queries";
-import { effectTone, fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
+import { effectTone, fmtInt, fmtPct, fmtPp } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { type TagIndex, useTags } from "../lib/useTags";
-import { parseFilters, parseTags, toParams } from "../lib/urlState";
+import { gameHref, parseFilters, parseTags, toParams } from "../lib/urlState";
 
 const MAX_TAGS = 4;
 const MIN_DEVS = 5;
@@ -250,9 +250,7 @@ function ComboView({
                 {games.data.map((g) => (
                   <tr key={g.appid}>
                     <td>
-                      <a href={steamUrl(g.appid)} target="_blank" rel="noreferrer">
-                        {g.name}
-                      </a>
+                      <Link to={gameHref(g.appid)}>{g.name}</Link>
                     </td>
                     <td className="muted">{g.developer ?? "–"}</td>
                     <td className="num">{g.year ?? "–"}</td>

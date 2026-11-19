@@ -319,7 +319,7 @@ first group protects the tracker, which can't recover days it misses.
   collect reviews fastest. Needs an export step on the tracking branch (or in the workflow).
 - [x] **P2.5 Timelines for the top 5,000 games** (~3 h fetch). Trim per-game news to the 15 latest
   plus announcements linked to turning points; slim `index.json` for search.
-- [ ] **P2.6 Per-game page**: search any of the ~60k games for its tags, score vs predicted, the
+- [x] **P2.6 Per-game page**: search any of the ~60k games for its tags, score vs predicted, the
   mixes it belongs to, and its timeline when available.
 
 ### C. Better analysis

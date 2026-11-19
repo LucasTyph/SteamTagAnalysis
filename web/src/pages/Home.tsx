@@ -16,6 +16,11 @@ const TOOLS = [
     text: "Tag mixes that beat (or miss) what their parts predict, with confidence intervals.",
   },
   {
+    to: "/games",
+    title: "Game Lookup",
+    text: "Any game with 20+ reviews: how it scores against what its tags predict, and the mixes it belongs to.",
+  },
+  {
     to: "/timelines",
     title: "Review Timelines",
     text: "Month-by-month reception of the 5,000 most-reviewed games, with turning points and patches.",

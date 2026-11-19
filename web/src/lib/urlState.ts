@@ -39,3 +39,5 @@ export function toParams(tags: Tag[], f: Filters): URLSearchParams {
 }
 
 export const exploreHref = (tags: Tag[]) => `/explore?${toParams(tags, DEFAULT_FILTERS)}`;
+
+export const gameHref = (appid: number) => `/games/${Math.trunc(appid)}`;

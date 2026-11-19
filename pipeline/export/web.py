@@ -1,7 +1,7 @@
 """`stp export`: write the website's data files to web/public/data/.
 
 - games.parquet      per-game fields for the explorer (relevant columns only)
-- game_tags.parquet  (appid, tagid) for relevant, non-excluded tags
+- game_tags.parquet  (appid, tagid, rank) for relevant, non-excluded tags
 - combos.parquet     precomputed pair/triple statistics
 - tags.json          tag list with per-tag stats
 - meta.json          build/analysis settings, fit stats and counts
@@ -58,7 +58,7 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
         _copy(
             con,
             """
-            SELECT gt.appid::INTEGER AS appid, gt.tagid::INTEGER AS tagid
+            SELECT gt.appid::INTEGER AS appid, gt.tagid::INTEGER AS tagid, gt.rank::TINYINT AS rank
             FROM game_tags gt JOIN game_scores USING (appid) JOIN tag_stats USING (tagid)
             WHERE gt.relevant ORDER BY gt.appid, gt.rank
             """,

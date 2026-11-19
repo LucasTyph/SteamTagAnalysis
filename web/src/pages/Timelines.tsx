@@ -15,6 +15,7 @@ import {
   monthsBetween,
 } from "../data/timelines";
 import { fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
+import { gameHref } from "../lib/urlState";
 import { useAsync } from "../lib/hooks";
 
 const MAX_GAMES = 4;
@@ -163,7 +164,8 @@ function GameHeader({ game }: { game: TimelineSummary }) {
         <span className="muted">
           {game.developer ?? "Unknown developer"} · reviews since {fmtMonth(game.first)} · {fmtInt(game.reviews)}{" "}
           reviews
-          {game.tags.length ? ` · ${game.tags.join(", ")}` : ""}
+          {game.tags.length ? ` · ${game.tags.join(", ")}` : ""} ·{" "}
+          <Link to={gameHref(game.appid)}>Tags and mixes →</Link>
         </span>
       </div>
       <div className="cards">
