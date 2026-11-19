@@ -6,6 +6,9 @@ name: Track new releases
 on:
   schedule:
     - cron: "23 6 * * *" # 06:23 UTC daily (off the hour, when Actions is less busy)
+    # Backup: GitHub can start scheduled runs hours late or drop them. This one does
+    # nothing if today's run already completed, and finishes it otherwise.
+    - cron: "41 17 * * *"
   workflow_dispatch:
 
 permissions:
@@ -39,7 +42,10 @@ jobs:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
         # Stops cleanly before the job limit; anything unfinished goes first tomorrow.
         # `exec` so stp itself receives the cancel signal and saves before exiting.
-        run: exec stp track daily --dir tracking-data --budget 5h
+        # Scheduled runs skip a day that already completed; manual runs always run.
+        run: >-
+          exec stp track daily --dir tracking-data --budget 5h
+          ${{ github.event_name == 'schedule' && '--skip-if-done' || '' }}
 
       - name: Commit data
         if: always()

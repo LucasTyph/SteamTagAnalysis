@@ -59,12 +59,24 @@ def daily(
     ] = None,
     max_requests: Annotated[int | None, typer.Option("--max-requests")] = None,
     today: Annotated[str | None, typer.Option(help="Override today (YYYY-MM-DD).")] = None,
+    skip_if_done: Annotated[
+        bool,
+        typer.Option(
+            "--skip-if-done",
+            help="Exit without doing anything if today's run already completed "
+            "(for a backup schedule).",
+        ),
+    ] = False,
 ):
     """Run one day of tracking. Safe to re-run; a cut-short run resumes next time."""
     store = TrackingStore(dir)
     if not (dir / "catalog.csv").exists():
         console.print("[red]No catalog yet.[/red] Run `stp track seed` first.")
         raise typer.Exit(1)
+    day = _today(today)
+    if skip_if_done and store.load_state().get("last_run") == day.isoformat():
+        console.print(f"Today's run ({day}) already completed; nothing to do.")
+        return
     control = RunControl(
         budget_s=parse_duration(budget) if budget else None, max_requests=max_requests
     )
@@ -72,7 +84,7 @@ def daily(
         stats = run_daily(
             store,
             client,
-            _today(today),
+            day,
             steam_api_key(),
             TRACKING,
             log=lambda m: console.print(f"  {m}"),

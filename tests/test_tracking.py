@@ -215,3 +215,24 @@ def test_released_with_future_date_is_treated_as_coming_soon():
     cat = {}
     assert apply_item(cat, 7, item(7, released=TODAY + timedelta(days=200)), TODAY) is None
     assert cat[7].status == COMING_SOON
+
+
+def test_skip_if_done_only_skips_completed_days(tmp_path, monkeypatch):
+    from typer.testing import CliRunner
+
+    from pipeline.cli import app
+
+    store = seed_store(tmp_path)
+    store.save_state({"applist_since": 1700000000, "last_run": TODAY.isoformat()})
+    ran = []
+    monkeypatch.setattr(
+        "pipeline.tracking.cli.run_daily",
+        lambda *a, **k: ran.append(a[2]) or {"duration_s": 0, "requests": 0, "stop_reason": ""},
+    )
+    args = ["track", "daily", "--dir", str(tmp_path / "tracking"), "--skip-if-done"]
+    runner = CliRunner()
+    result = runner.invoke(app, [*args, "--today", TODAY.isoformat()])
+    assert result.exit_code == 0 and "already completed" in result.output and ran == []
+    # A day whose run hasn't completed (e.g. cut short or not started) still runs.
+    result = runner.invoke(app, [*args, "--today", "2026-11-21"])
+    assert result.exit_code == 0 and ran == [date(2026, 11, 21)]
