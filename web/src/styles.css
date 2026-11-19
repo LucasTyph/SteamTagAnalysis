@@ -500,6 +500,14 @@ td.tone-negative {
 .plot {
   color: var(--fg);
   min-width: 0;
+  /* Observable Plot fills tooltips (and text halos) with --plot-background, which it
+     defaults to white; match the theme so tooltip text stays readable in dark mode. */
+  --plot-background: var(--surface);
+}
+
+.plot svg,
+.plot figure {
+  --plot-background: var(--surface);
 }
 
 .plot svg {
