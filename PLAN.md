@@ -292,3 +292,50 @@ Responsive down to phone width. Loading states while DuckDB-WASM initializes (ab
 - Timeline set size: 1k to start. Expanding to 5k is cheap if the first results are interesting.
 - Project name and repo name (used in the Pages URL, e.g. `you.github.io/<repo>/`).
 - Whether exported data files are committed or built in CI (default: committed, since they're small and reproducible).
+
+---
+
+# Phase 2 — improvements (planned 2026-11-19)
+
+Phase 1 (M0–M7) is complete and live, and daily release tracking runs on GitHub Actions
+(`tracking-data` branch). Phase 2 is grouped by purpose and ordered by priority; the
+first group protects the tracker, which can't recover days it misses.
+
+### A. Protect the tracker
+- [x] **P2.1 Weekly tracking files.** Partition `snapshots/` and `daily_reviews/` by ISO week
+  (`YYYY-Www.csv`) instead of month. At ~200 releases/day a monthly file would reach ~55 MB,
+  past GitHub's 50 MB warning and near its 100 MB block. Existing monthly files migrate
+  automatically on the next run.
+- [x] **P2.2 Keep-alive.** GitHub disables schedules after 60 days without repository
+  activity. A monthly workflow makes an empty commit to `main` only when `main` has been
+  quiet for 30+ days.
+- [x] **P2.3 Alerts.** A failed scheduled run opens (or comments on) a `tracking-alert` issue;
+  the backup run also alerts if the day still isn't complete. A later successful run closes
+  the issue.
+
+### B. New features on the site
+- [ ] **P2.4 New Releases page** from the tracking data: per-game first-year curves at daily
+  resolution; how % positive moves after week 1; early-access vs full launches; which genres
+  collect reviews fastest. Needs an export step on the tracking branch (or in the workflow).
+- [ ] **P2.5 Timelines for the top 5,000 games** (~3 h fetch). Trim per-game news to the 15 latest
+  plus announcements linked to turning points; slim `index.json` for search.
+- [ ] **P2.6 Per-game page**: search any of the ~60k games for its tags, score vs predicted, the
+  mixes it belongs to, and its timeline when available.
+
+### C. Better analysis
+- [ ] **P2.7 Real launch dates for early-access games** from the first month of review history
+  (fetched gradually through the scheduled workflow for all ~60k games).
+- [ ] **P2.8 Stronger mix model** with explicit, regularised pair terms so effect sizes are no longer
+  lower bounds; validate on planted effects and document it on the Methodology page.
+- [ ] **P2.9 Clone-studio grouping**: cluster by publisher and near-identical names from the same
+  release window, on top of developer grouping.
+
+### D. Keeping it current
+- [ ] **P2.10 Scheduled refresh of the main dataset** (monthly): slim the cached store data so a
+  runner can refresh it, then re-run build/analyze/export and redeploy, with "data as of" on the site.
+
+### E. Presentation
+- [ ] **P2.11 Link previews and metadata**: per-route titles, description, preview image.
+- [ ] **P2.12 Write-up**: a short article on the most interesting findings (asset-flip trap,
+  publisher-wide review bombs, No Man's Sky's comeback), linked from the README and site.
+- [ ] **P2.13 Frontend tests**: Vitest for query/stats helpers and a browser smoke test in CI.

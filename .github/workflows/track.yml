@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  issues: write # for tracking-alert issues
 
 concurrency:
   group: track-releases
@@ -60,3 +61,41 @@ jobs:
           fi
           git commit -q -m "Tracking run $(date -u +%F)"
           git push -q origin tracking-data
+
+      # --- Alerts: a `tracking-alert` issue (GitHub emails you about it) -----------------
+
+      - name: Check the day is complete (backup run only)
+        if: always() && github.event.schedule == '41 17 * * *'
+        run: stp track check --dir tracking-data
+
+      - name: Open or update alert issue
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create tracking-alert --color d73a4a --description "Daily release tracking needs attention" 2>/dev/null || true
+          num=$(gh issue list --label tracking-alert --state open --json number --jq '.[0].number')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "Still failing on $(date -u +%F): $RUN_URL"
+          else
+            gh issue create --label tracking-alert --title "Release tracking needs attention" --body "A scheduled tracking run failed or the day did not complete ($(date -u +%F)).
+
+          Run: $RUN_URL
+
+          Days that are missed are not lost: the next run resumes where this one stopped, and the
+          exact daily counts cover the last 30 days. This issue closes itself after the next
+          complete run."
+          fi
+
+      - name: Close alert after a complete run
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          stp track check --dir tracking-data >/dev/null || exit 0
+          for num in $(gh issue list --label tracking-alert --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Resolved: the run for $(date -u +%F) completed."
+          done

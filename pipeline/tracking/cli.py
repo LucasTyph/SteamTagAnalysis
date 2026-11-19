@@ -134,3 +134,22 @@ def status(dir: Dir = DEFAULT_DIR):
         str(len(list((dir / "daily_reviews").glob("*.csv")))) if dir.exists() else "0",
     )
     console.print(table)
+
+
+@track_app.command("check")
+def check(
+    dir: Dir = DEFAULT_DIR,
+    today: Annotated[str | None, typer.Option(help="Override today (YYYY-MM-DD).")] = None,
+):
+    """Exit with an error unless today's run has completed (used for alerts)."""
+    day = _today(today)
+    last = TrackingStore(dir).load_state().get("last_run")
+    if last == day.isoformat():
+        console.print(f"OK: the run for {day} completed.")
+        return
+    runs = _read_runs(dir)
+    detail = ""
+    if runs and runs[-1]["date"] == day.isoformat() and runs[-1]["stop_reason"]:
+        detail = f" Today's run stopped early: {runs[-1]['stop_reason']}."
+    console.print(f"[red]Not complete:[/red] last completed run is {last or 'never'}.{detail}")
+    raise typer.Exit(1)

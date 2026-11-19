@@ -165,16 +165,16 @@ def test_daily_run_discovers_tracks_snapshots_and_counts(tmp_path):
     assert stats["newly_tracked"] == 2 and stats["snapshots"] == 2 and stats["histograms"] == 2
     assert store.load_state()["applist_since"] > 1700000000
 
-    snap = (tmp_path / "tracking/snapshots/2026-11.csv").read_text().splitlines()
+    snap = (tmp_path / "tracking/snapshots/2026-W47.csv").read_text().splitlines()
     assert snap[0] == "date,appid,review_count,pct_positive" and len(snap) == 3
-    daily = (tmp_path / "tracking/daily_reviews/2026-11.csv").read_text().splitlines()
+    daily = (tmp_path / "tracking/daily_reviews/2026-W47.csv").read_text().splitlines()
     assert len(daily) == 1 + 2 * 3  # header + 2 games x 3 days
 
     # Same day again: idempotent, no duplicate rows, histograms not due.
     with make_client(fake_steam({10, 30}, {})) as client:
         again = run_daily(store, client, TODAY, "key", log=lambda m: None)
     assert again["histograms"] == 0
-    assert len((tmp_path / "tracking/snapshots/2026-11.csv").read_text().splitlines()) == 3
+    assert len((tmp_path / "tracking/snapshots/2026-W47.csv").read_text().splitlines()) == 3
     assert len((tmp_path / "tracking/runs.csv").read_text().splitlines()) == 2  # one per day
 
 
@@ -236,3 +236,51 @@ def test_skip_if_done_only_skips_completed_days(tmp_path, monkeypatch):
     # A day whose run hasn't completed (e.g. cut short or not started) still runs.
     result = runner.invoke(app, [*args, "--today", "2026-11-21"])
     assert result.exit_code == 0 and ran == [date(2026, 11, 21)]
+
+
+def test_week_files_and_migration_from_monthly(tmp_path):
+    from pipeline.tracking.store import _write_csv, week_key
+
+    assert week_key(date(2026, 11, 20)) == "2026-W47"
+    assert week_key(date(2027, 1, 1)) == "2026-W53"  # ISO year can differ from calendar year
+    root = tmp_path / "t"
+    _write_csv(
+        root / "snapshots/2026-11.csv",
+        ["date", "appid", "review_count", "pct_positive"],
+        [
+            {"date": "2026-11-15", "appid": 1, "review_count": 5, "pct_positive": 80},  # W46
+            {"date": "2026-11-16", "appid": 1, "review_count": 6, "pct_positive": 83},  # W47
+        ],
+    )
+    _write_csv(
+        root / "daily_reviews/2026-10.csv",
+        ["appid", "day", "up", "down"],
+        [
+            {"appid": 1, "day": "2026-10-31", "up": 2, "down": 0},  # W44
+        ],
+    )
+    store = TrackingStore(root)  # migrates on open
+    assert sorted(f.name for f in (root / "snapshots").iterdir()) == [
+        "2026-W46.csv",
+        "2026-W47.csv",
+    ]
+    assert [f.name for f in (root / "daily_reviews").iterdir()] == ["2026-W44.csv"]
+    store.upsert_daily([(1, date(2026, 10, 31), 3, 1)])  # later fetch overwrites
+    rows = (root / "daily_reviews/2026-W44.csv").read_text().splitlines()
+    assert rows == ["appid,day,up,down", "1,2026-10-31,3,1"]
+    TrackingStore(root)  # idempotent: nothing left to migrate
+    assert len(list((root / "snapshots").iterdir())) == 2
+
+
+def test_check_command_reports_incomplete_days(tmp_path):
+    from typer.testing import CliRunner
+
+    from pipeline.cli import app
+
+    store = seed_store(tmp_path)
+    store.save_state({"applist_since": 1, "last_run": "2026-11-19"})
+    args = ["track", "check", "--dir", str(tmp_path / "tracking")]
+    runner = CliRunner()
+    assert runner.invoke(app, [*args, "--today", "2026-11-19"]).exit_code == 0
+    result = runner.invoke(app, [*args, "--today", "2026-11-20"])
+    assert result.exit_code == 1 and "2026-11-19" in result.output

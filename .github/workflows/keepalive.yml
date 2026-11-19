@@ -1,0 +1,35 @@
+name: Keep schedules alive
+
+# GitHub disables scheduled workflows in a public repo after 60 days without
+# repository activity. Once a month, if `main` has had no commits for 30+ days,
+# push an empty commit so the daily tracking schedule keeps running.
+on:
+  schedule:
+    - cron: "7 3 1 * *" # 03:07 UTC on the 1st of each month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Empty commit if main has been quiet for 30 days
+        run: |
+          last=$(git log -1 --format=%ct)
+          now=$(date +%s)
+          days=$(( (now - last) / 86400 ))
+          echo "Last commit on main: ${days} days ago."
+          if [ "$days" -lt 30 ]; then
+            echo "Recent activity; nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -q -m "Keep scheduled workflows active (no commits for ${days} days)"
+          git push -q origin HEAD:main
