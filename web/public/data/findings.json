@@ -357,10 +357,10 @@
   }
  ],
  "drift": {
-  "n": 949,
-  "median_drift": -1.7,
-  "pct_up5": 20.1,
-  "pct_down5": 31.3
+  "n": 4544,
+  "median_drift": -2.7,
+  "pct_up5": 13.9,
+  "pct_down5": 37.0
  },
  "comebacks": [
   {
@@ -385,314 +385,850 @@
    "trough_month": "2025-06"
   },
   {
+   "appid": 1345740,
+   "name": "\u604b\u7231\u7eee\u8c2d~\u4e0d\u5b58\u5728\u7684\u590f\u5929~",
+   "trough": 8.1,
+   "recent": 75.5,
+   "trough_month": "2025-08"
+  },
+  {
+   "appid": 292730,
+   "name": "Call of Duty\u00ae: Infinite Warfare",
+   "trough": 21.9,
+   "recent": 89.1,
+   "trough_month": "2017-04"
+  },
+  {
    "appid": 440,
    "name": "Team Fortress 2",
    "trough": 27.2,
    "recent": 93.7,
    "trough_month": "2024-06"
-  },
-  {
-   "appid": 245170,
-   "name": "Skullgirls 2nd Encore",
-   "trough": 24.0,
-   "recent": 87.6,
-   "trough_month": "2023-06"
-  },
-  {
-   "appid": 1859910,
-   "name": "Legend of Mortal",
-   "trough": 30.1,
-   "recent": 93.0,
-   "trough_month": "2025-05"
   }
  ],
  "turning_points": {
-  "n": 2234,
-  "pct_unmatched": 44.7
+  "n": 6055,
+  "pct_unmatched": 54.2
  },
  "bomb_clusters": [
   {
    "month": "2026-09",
-   "n": 13,
-   "avg_shift": -55.2,
+   "n": 20,
+   "avg_shift": -50.8,
    "games": [
     "Europa Universalis IV",
     "Crusader Kings II",
+    "Victoria II",
     "Hearts of Iron IV",
     "Prison Architect",
     "Cities: Skylines",
-    "Crusader Kings III",
-    "Stellaris",
-    "Victoria 3"
+    "Magicka 2",
+    "Crusader Kings III"
    ],
    "top_publisher": "Paradox Interactive",
-   "top_publisher_games": 8
+   "top_publisher_games": 11
   },
   {
    "month": "2019-08",
-   "n": 7,
-   "avg_shift": -33.1,
+   "n": 13,
+   "avg_shift": -31.2,
    "games": [
     "Total War: WARHAMMER",
+    "BATTALION: Legacy",
     "Prison Architect",
     "Total War: THREE KINGDOMS",
     "Total War: ATTILA",
     "Warhammer: Vermintide 2",
-    "Anno 1800",
-    "Total War: EMPIRE \u2013 Definitive Edition"
+    "One Hour One Life",
+    "We Need To Go Deeper"
    ],
    "top_publisher": "SEGA",
    "top_publisher_games": 4
   },
   {
+   "month": "2026-05",
+   "n": 11,
+   "avg_shift": -38.0,
+   "games": [
+    "One Hour One Life",
+    "Europa Universalis V",
+    "Warhammer 40,000: Mechanicus",
+    "Party Animals",
+    "Eternal Return",
+    "Mall Simulator",
+    "Pantheon: Rise of the Fallen",
+    "Phasmophobia"
+   ],
+   "top_publisher": "Kasedo Games",
+   "top_publisher_games": 1
+  },
+  {
    "month": "2025-04",
-   "n": 7,
-   "avg_shift": -53.5,
+   "n": 11,
+   "avg_shift": -53.8,
    "games": [
     "Borderlands 2",
     "Borderlands: The Pre-Sequel",
+    "Drug Dealer Simulator",
+    "Gaokao.Love.100Days",
     "TEKKEN 8",
+    "Borderlands Game of the Year Enhanced",
     "Borderlands 3",
-    "DJMAX RESPECT V",
-    "Path of Exile 2",
-    "NARAKA: BLADEPOINT"
+    "DJMAX RESPECT V"
    ],
    "top_publisher": "2K",
-   "top_publisher_games": 3
-  },
-  {
-   "month": "2022-09",
-   "n": 6,
-   "avg_shift": -44.1,
-   "games": [
-    "Mirror 2: Project X",
-    "Warframe",
-    "BioShock Infinite",
-    "The Scroll of Taiwu : Beyond The Dome",
-    "BioShock\u2122 2 Remastered",
-    "Mirror"
-   ],
-   "top_publisher": "2K",
-   "top_publisher_games": 2
+   "top_publisher_games": 4
   }
  ],
  "tag_aging": [
   {
-   "name": "City Builder",
-   "n": 9,
-   "early": 79.8,
-   "later": 89.8,
-   "change": 10.0
+   "name": "Sports",
+   "n": 27,
+   "early": 77.8,
+   "later": 89.1,
+   "change": 11.3
   },
   {
-   "name": "Strategy",
-   "n": 35,
-   "early": 77.6,
-   "later": 84.9,
-   "change": 7.3
+   "name": "Mechs",
+   "n": 11,
+   "early": 72.6,
+   "later": 82.8,
+   "change": 10.2
   },
   {
-   "name": "FPS",
-   "n": 33,
-   "early": 78.5,
-   "later": 85.1,
-   "change": 6.6
+   "name": "World War II",
+   "n": 10,
+   "early": 76.0,
+   "later": 84.8,
+   "change": 8.8
+  },
+  {
+   "name": "PvP",
+   "n": 12,
+   "early": 71.1,
+   "later": 79.8,
+   "change": 8.7
+  },
+  {
+   "name": "Automobile Sim",
+   "n": 13,
+   "early": 79.0,
+   "later": 86.0,
+   "change": 7.0
   },
   {
    "name": "Fighting",
-   "n": 8,
-   "early": 81.8,
-   "later": 87.7,
-   "change": 6.0
-  },
-  {
-   "name": "VR",
-   "n": 8,
-   "early": 88.1,
-   "later": 93.8,
-   "change": 5.7
-  },
-  {
-   "name": "Souls-like",
-   "n": 18,
-   "early": 82.0,
-   "later": 86.5,
-   "change": 4.5
-  },
-  {
-   "name": "Open World",
-   "n": 64,
-   "early": 79.7,
-   "later": 83.7,
-   "change": 4.1
-  },
-  {
-   "name": "Anime",
-   "n": 9,
-   "early": 78.0,
-   "later": 81.1,
-   "change": 3.0
-  },
-  {
-   "name": "Gore",
-   "n": 9,
-   "early": 85.1,
-   "later": 88.0,
-   "change": 2.9
-  },
-  {
-   "name": "Simulation",
    "n": 31,
-   "early": 85.4,
-   "later": 88.2,
-   "change": 2.7
-  },
-  {
-   "name": "Action",
-   "n": 44,
-   "early": 85.4,
+   "early": 81.2,
    "later": 87.8,
-   "change": 2.4
+   "change": 6.6
   },
   {
-   "name": "Story Rich",
-   "n": 16,
-   "early": 90.9,
-   "later": 93.2,
-   "change": 2.3
+   "name": "2D Fighter",
+   "n": 13,
+   "early": 82.0,
+   "later": 88.6,
+   "change": 6.6
   },
   {
-   "name": "Adventure",
-   "n": 12,
-   "early": 89.6,
-   "later": 91.8,
-   "change": 2.2
-  },
-  {
-   "name": "Psychological Horror",
+   "name": "RTS",
    "n": 10,
-   "early": 89.1,
-   "later": 90.9,
-   "change": 1.8
+   "early": 74.4,
+   "later": 80.5,
+   "change": 6.1
+  },
+  {
+   "name": "Battle Royale",
+   "n": 8,
+   "early": 74.1,
+   "later": 79.6,
+   "change": 5.4
+  },
+  {
+   "name": "Fishing",
+   "n": 8,
+   "early": 77.0,
+   "later": 82.0,
+   "change": 5.0
   },
   {
    "name": "Racing",
-   "n": 18,
-   "early": 79.5,
-   "later": 81.1,
-   "change": 1.6
+   "n": 68,
+   "early": 77.0,
+   "later": 81.5,
+   "change": 4.5
   },
   {
-   "name": "Choices Matter",
-   "n": 8,
-   "early": 89.4,
-   "later": 91.0,
-   "change": 1.6
+   "name": "Space",
+   "n": 23,
+   "early": 78.7,
+   "later": 82.9,
+   "change": 4.2
   },
   {
-   "name": "Multiplayer",
-   "n": 40,
-   "early": 85.2,
-   "later": 86.6,
-   "change": 1.4
+   "name": "Life Sim",
+   "n": 14,
+   "early": 83.2,
+   "later": 87.2,
+   "change": 3.9
   },
   {
-   "name": "Co-op",
-   "n": 18,
-   "early": 84.3,
-   "later": 85.6,
-   "change": 1.3
-  },
-  {
-   "name": "Sandbox",
-   "n": 9,
-   "early": 90.9,
-   "later": 92.1,
-   "change": 1.2
-  },
-  {
-   "name": "Zombies",
-   "n": 16,
-   "early": 82.6,
-   "later": 83.4,
-   "change": 0.9
+   "name": "Survival Horror",
+   "n": 14,
+   "early": 88.5,
+   "later": 92.3,
+   "change": 3.8
   },
   {
    "name": "Action RPG",
-   "n": 11,
-   "early": 79.1,
-   "later": 79.3,
-   "change": 0.2
+   "n": 23,
+   "early": 77.9,
+   "later": 81.2,
+   "change": 3.3
   },
   {
-   "name": "Free to Play",
-   "n": 76,
-   "early": 78.6,
-   "later": 78.3,
+   "name": "Dungeon Crawler",
+   "n": 15,
+   "early": 84.3,
+   "later": 87.3,
+   "change": 3.0
+  },
+  {
+   "name": "MMORPG",
+   "n": 22,
+   "early": 68.9,
+   "later": 71.9,
+   "change": 3.0
+  },
+  {
+   "name": "City Builder",
+   "n": 35,
+   "early": 79.6,
+   "later": 82.5,
+   "change": 2.8
+  },
+  {
+   "name": "Open World",
+   "n": 101,
+   "early": 78.1,
+   "later": 80.9,
+   "change": 2.8
+  },
+  {
+   "name": "Choices Matter",
+   "n": 35,
+   "early": 84.4,
+   "later": 87.1,
+   "change": 2.7
+  },
+  {
+   "name": "VR",
+   "n": 40,
+   "early": 84.6,
+   "later": 87.2,
+   "change": 2.6
+  },
+  {
+   "name": "Driving",
+   "n": 9,
+   "early": 83.3,
+   "later": 85.9,
+   "change": 2.6
+  },
+  {
+   "name": "Sandbox",
+   "n": 34,
+   "early": 85.2,
+   "later": 87.7,
+   "change": 2.6
+  },
+  {
+   "name": "FPS",
+   "n": 95,
+   "early": 80.9,
+   "later": 83.3,
+   "change": 2.4
+  },
+  {
+   "name": "Cats",
+   "n": 11,
+   "early": 95.5,
+   "later": 97.6,
+   "change": 2.2
+  },
+  {
+   "name": "Dinosaurs",
+   "n": 10,
+   "early": 77.7,
+   "later": 79.8,
+   "change": 2.1
+  },
+  {
+   "name": "Cozy",
+   "n": 14,
+   "early": 93.5,
+   "later": 95.6,
+   "change": 2.1
+  },
+  {
+   "name": "Precision Platformer",
+   "n": 8,
+   "early": 90.4,
+   "later": 92.5,
+   "change": 2.1
+  },
+  {
+   "name": "Dating Sim",
+   "n": 12,
+   "early": 90.9,
+   "later": 93.0,
+   "change": 2.1
+  },
+  {
+   "name": "Nudity",
+   "n": 8,
+   "early": 83.3,
+   "later": 85.2,
+   "change": 1.9
+  },
+  {
+   "name": "Action",
+   "n": 268,
+   "early": 79.8,
+   "later": 81.6,
+   "change": 1.8
+  },
+  {
+   "name": "Card Battler",
+   "n": 11,
+   "early": 84.6,
+   "later": 86.3,
+   "change": 1.7
+  },
+  {
+   "name": "Hentai",
+   "n": 9,
+   "early": 92.1,
+   "later": 93.5,
+   "change": 1.5
+  },
+  {
+   "name": "Idler",
+   "n": 14,
+   "early": 83.6,
+   "later": 85.0,
+   "change": 1.4
+  },
+  {
+   "name": "Simulation",
+   "n": 174,
+   "early": 82.5,
+   "later": 83.7,
+   "change": 1.2
+  },
+  {
+   "name": "Tower Defense",
+   "n": 34,
+   "early": 89.1,
+   "later": 90.2,
+   "change": 1.1
+  },
+  {
+   "name": "Hack and Slash",
+   "n": 10,
+   "early": 80.8,
+   "later": 81.8,
+   "change": 1.0
+  },
+  {
+   "name": "Comedy",
+   "n": 15,
+   "early": 91.4,
+   "later": 92.4,
+   "change": 1.0
+  },
+  {
+   "name": "Exploration",
+   "n": 28,
+   "early": 87.4,
+   "later": 88.3,
+   "change": 1.0
+  },
+  {
+   "name": "Rhythm",
+   "n": 26,
+   "early": 92.8,
+   "later": 93.8,
+   "change": 0.9
+  },
+  {
+   "name": "Beat 'em up",
+   "n": 8,
+   "early": 90.5,
+   "later": 91.3,
+   "change": 0.8
+  },
+  {
+   "name": "Relaxing",
+   "n": 20,
+   "early": 90.5,
+   "later": 91.3,
+   "change": 0.8
+  },
+  {
+   "name": "Base Building",
+   "n": 21,
+   "early": 83.1,
+   "later": 83.9,
+   "change": 0.8
+  },
+  {
+   "name": "Strategy",
+   "n": 198,
+   "early": 80.0,
+   "later": 80.7,
+   "change": 0.7
+  },
+  {
+   "name": "Stealth",
+   "n": 26,
+   "early": 88.0,
+   "later": 88.5,
+   "change": 0.5
+  },
+  {
+   "name": "Casual",
+   "n": 51,
+   "early": 88.8,
+   "later": 89.3,
+   "change": 0.5
+  },
+  {
+   "name": "Multiplayer",
+   "n": 101,
+   "early": 82.7,
+   "later": 83.2,
+   "change": 0.4
+  },
+  {
+   "name": "Co-op",
+   "n": 46,
+   "early": 83.9,
+   "later": 84.3,
+   "change": 0.4
+  },
+  {
+   "name": "Turn-Based Tactics",
+   "n": 18,
+   "early": 78.3,
+   "later": 78.2,
+   "change": -0.1
+  },
+  {
+   "name": "Flight",
+   "n": 18,
+   "early": 80.3,
+   "later": 80.1,
+   "change": -0.2
+  },
+  {
+   "name": "Automation",
+   "n": 16,
+   "early": 92.0,
+   "later": 91.7,
    "change": -0.3
   },
   {
-   "name": "Open World Survival Craft",
+   "name": "Board Game",
    "n": 13,
-   "early": 85.1,
-   "later": 84.5,
-   "change": -0.6
+   "early": 76.0,
+   "later": 75.6,
+   "change": -0.4
   },
   {
-   "name": "RPG",
-   "n": 44,
-   "early": 84.2,
-   "later": 83.5,
+   "name": "Cyberpunk",
+   "n": 17,
+   "early": 85.2,
+   "later": 84.8,
+   "change": -0.4
+  },
+  {
+   "name": "Roguelike",
+   "n": 18,
+   "early": 88.4,
+   "later": 88.0,
+   "change": -0.4
+  },
+  {
+   "name": "Story Rich",
+   "n": 36,
+   "early": 92.3,
+   "later": 91.9,
+   "change": -0.4
+  },
+  {
+   "name": "Free to Play",
+   "n": 272,
+   "early": 80.3,
+   "later": 79.9,
+   "change": -0.5
+  },
+  {
+   "name": "Anime",
+   "n": 72,
+   "early": 86.0,
+   "later": 85.4,
    "change": -0.7
   },
   {
-   "name": "Puzzle",
-   "n": 8,
-   "early": 97.5,
-   "later": 96.4,
-   "change": -1.0
+   "name": "Difficult",
+   "n": 13,
+   "early": 92.2,
+   "later": 91.4,
+   "change": -0.8
   },
   {
-   "name": "Visual Novel",
-   "n": 13,
-   "early": 95.8,
-   "later": 94.8,
-   "change": -1.0
+   "name": "RPG",
+   "n": 205,
+   "early": 83.3,
+   "later": 82.5,
+   "change": -0.8
+  },
+  {
+   "name": "Puzzle",
+   "n": 92,
+   "early": 93.1,
+   "later": 92.3,
+   "change": -0.8
   },
   {
    "name": "Horror",
+   "n": 166,
+   "early": 87.3,
+   "later": 86.4,
+   "change": -0.9
+  },
+  {
+   "name": "Bullet Hell",
+   "n": 12,
+   "early": 93.8,
+   "later": 92.8,
+   "change": -0.9
+  },
+  {
+   "name": "Zombies",
+   "n": 46,
+   "early": 80.7,
+   "later": 79.8,
+   "change": -0.9
+  },
+  {
+   "name": "Management",
    "n": 34,
+   "early": 87.1,
+   "later": 86.2,
+   "change": -1.0
+  },
+  {
+   "name": "Gore",
+   "n": 24,
+   "early": 85.7,
+   "later": 84.6,
+   "change": -1.0
+  },
+  {
+   "name": "Roguelite",
+   "n": 10,
+   "early": 86.2,
+   "later": 85.1,
+   "change": -1.0
+  },
+  {
+   "name": "Shooter",
+   "n": 17,
+   "early": 83.2,
+   "later": 82.1,
+   "change": -1.1
+  },
+  {
+   "name": "Military",
+   "n": 9,
+   "early": 82.6,
+   "later": 81.5,
+   "change": -1.1
+  },
+  {
+   "name": "Cute",
+   "n": 19,
+   "early": 92.7,
+   "later": 91.6,
+   "change": -1.1
+  },
+  {
+   "name": "Arcade",
+   "n": 8,
+   "early": 92.3,
+   "later": 91.1,
+   "change": -1.2
+  },
+  {
+   "name": "Roguelike Deckbuilder",
+   "n": 13,
+   "early": 91.7,
+   "later": 90.5,
+   "change": -1.2
+  },
+  {
+   "name": "Psychological Horror",
+   "n": 47,
    "early": 89.3,
-   "later": 87.8,
+   "later": 88.0,
+   "change": -1.3
+  },
+  {
+   "name": "Visual Novel",
+   "n": 82,
+   "early": 95.4,
+   "later": 94.1,
+   "change": -1.3
+  },
+  {
+   "name": "Souls-like",
+   "n": 34,
+   "early": 80.9,
+   "later": 79.5,
+   "change": -1.4
+  },
+  {
+   "name": "Creature Collector",
+   "n": 12,
+   "early": 91.9,
+   "later": 90.4,
    "change": -1.5
   },
   {
+   "name": "Adventure",
+   "n": 126,
+   "early": 88.3,
+   "later": 86.7,
+   "change": -1.6
+  },
+  {
    "name": "Action Roguelike",
-   "n": 10,
-   "early": 93.8,
-   "later": 92.0,
-   "change": -1.8
+   "n": 55,
+   "early": 89.4,
+   "later": 87.7,
+   "change": -1.7
+  },
+  {
+   "name": "Metroidvania",
+   "n": 36,
+   "early": 90.2,
+   "later": 88.3,
+   "change": -1.9
+  },
+  {
+   "name": "Indie",
+   "n": 63,
+   "early": 90.8,
+   "later": 89.0,
+   "change": -1.9
   },
   {
    "name": "Great Soundtrack",
-   "n": 12,
-   "early": 95.2,
-   "later": 92.4,
-   "change": -2.7
-  },
-  {
-   "name": "Survival",
-   "n": 25,
-   "early": 81.7,
-   "later": 78.7,
-   "change": -3.0
+   "n": 17,
+   "early": 92.8,
+   "later": 90.7,
+   "change": -2.1
   },
   {
    "name": "Online Co-Op",
+   "n": 28,
+   "early": 85.7,
+   "later": 83.5,
+   "change": -2.2
+  },
+  {
+   "name": "Turn-Based Strategy",
+   "n": 10,
+   "early": 91.0,
+   "later": 88.7,
+   "change": -2.3
+  },
+  {
+   "name": "Incremental",
+   "n": 36,
+   "early": 90.4,
+   "later": 88.0,
+   "change": -2.3
+  },
+  {
+   "name": "Atmospheric",
+   "n": 18,
+   "early": 91.8,
+   "later": 89.3,
+   "change": -2.5
+  },
+  {
+   "name": "JRPG",
+   "n": 31,
+   "early": 89.6,
+   "later": 87.1,
+   "change": -2.5
+  },
+  {
+   "name": "Point & Click",
+   "n": 23,
+   "early": 95.2,
+   "later": 92.6,
+   "change": -2.5
+  },
+  {
+   "name": "3D Platformer",
+   "n": 13,
+   "early": 94.2,
+   "later": 91.5,
+   "change": -2.7
+  },
+  {
+   "name": "Building",
+   "n": 17,
+   "early": 87.1,
+   "later": 84.5,
+   "change": -2.7
+  },
+  {
+   "name": "Funny",
+   "n": 9,
+   "early": 92.8,
+   "later": 89.9,
+   "change": -2.9
+  },
+  {
+   "name": "Sexual Content",
+   "n": 141,
+   "early": 85.8,
+   "later": 82.9,
+   "change": -3.0
+  },
+  {
+   "name": "Pixel Graphics",
+   "n": 36,
+   "early": 92.1,
+   "later": 88.8,
+   "change": -3.3
+  },
+  {
+   "name": "Tactical",
+   "n": 12,
+   "early": 84.8,
+   "later": 81.5,
+   "change": -3.4
+  },
+  {
+   "name": "Hidden Object",
+   "n": 9,
+   "early": 95.7,
+   "later": 92.2,
+   "change": -3.5
+  },
+  {
+   "name": "Farming Sim",
+   "n": 17,
+   "early": 89.7,
+   "later": 86.1,
+   "change": -3.6
+  },
+  {
+   "name": "Survival",
+   "n": 67,
+   "early": 79.3,
+   "later": 75.7,
+   "change": -3.6
+  },
+  {
+   "name": "Music",
    "n": 8,
-   "early": 88.0,
-   "later": 81.9,
-   "change": -6.1
+   "early": 92.1,
+   "later": 88.4,
+   "change": -3.6
+  },
+  {
+   "name": "Boomer Shooter",
+   "n": 11,
+   "early": 95.0,
+   "later": 91.2,
+   "change": -3.7
+  },
+  {
+   "name": "Puzzle Platformer",
+   "n": 14,
+   "early": 92.7,
+   "later": 89.0,
+   "change": -3.8
+  },
+  {
+   "name": "Singleplayer",
+   "n": 22,
+   "early": 84.6,
+   "later": 80.6,
+   "change": -4.1
+  },
+  {
+   "name": "Card Game",
+   "n": 11,
+   "early": 82.9,
+   "later": 78.5,
+   "change": -4.4
+  },
+  {
+   "name": "Detective",
+   "n": 19,
+   "early": 91.6,
+   "later": 87.1,
+   "change": -4.5
+  },
+  {
+   "name": "Platformer",
+   "n": 22,
+   "early": 95.1,
+   "later": 90.1,
+   "change": -5.0
+  },
+  {
+   "name": "Auto Battler",
+   "n": 9,
+   "early": 82.2,
+   "later": 77.0,
+   "change": -5.2
+  },
+  {
+   "name": "Colony Sim",
+   "n": 11,
+   "early": 83.4,
+   "later": 77.5,
+   "change": -5.8
+  },
+  {
+   "name": "Open World Survival Craft",
+   "n": 43,
+   "early": 78.8,
+   "later": 72.9,
+   "change": -6.0
+  },
+  {
+   "name": "Walking Simulator",
+   "n": 10,
+   "early": 76.8,
+   "later": 70.6,
+   "change": -6.2
+  },
+  {
+   "name": "Female Protagonist",
+   "n": 21,
+   "early": 87.5,
+   "later": 80.9,
+   "change": -6.6
   }
  ],
  "excluded_tags": [

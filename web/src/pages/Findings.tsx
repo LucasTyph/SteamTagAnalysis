@@ -24,6 +24,7 @@ function FindingsView({ f }: { f: Data }) {
   const big = f.size_buckets[f.size_buckets.length - 1];
   const bomb = f.bomb_clusters?.[0];
   const aging = f.tag_aging ?? [];
+  const agingShown = [...aging.slice(0, 4), ...aging.slice(-4)];
 
   return (
     <section className="page findings">
@@ -179,14 +180,15 @@ function FindingsView({ f }: { f: Data }) {
             <>
               Comparing a genre's average score in its first six months with its third and fourth years:{" "}
               {aging[0].name} games gain <strong>{aging[0].change.toFixed(1)} points</strong>, while {aging[aging.length - 1].name}{" "}
-              games lose <strong>{Math.abs(aging[aging.length - 1].change).toFixed(1)} points</strong>. These groups are small (8 to 76 games
-              each), so treat them as hints.
+              games lose <strong>{Math.abs(aging[aging.length - 1].change).toFixed(1)} points</strong>. These groups are small (
+              {Math.min(...agingShown.map((a) => a.n))} to {Math.max(...agingShown.map((a) => a.n))} games each), so treat them as
+              hints.
             </>
           }
         >
           <BarList
             diverging
-            rows={[...aging.slice(0, 4), ...aging.slice(-4)].map((a) => ({
+            rows={agingShown.map((a) => ({
               label: a.name,
               value: a.change,
               note: `${a.n} games · ${a.early.toFixed(0)}% → ${a.later.toFixed(0)}%`,
