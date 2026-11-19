@@ -182,3 +182,73 @@ def test_launch_window_extends_until_enough_reviews():
     s = summarize(_months(15), up, down)
     assert s.launch_score == pytest.approx(70.6, abs=1)  # not 100%
     assert summarize(_months(15), up, down, launched_before_reviews=True).launch_score is None
+
+
+def _planted_data(seed=1, n_games=6_000):
+    rng = np.random.default_rng(seed)
+    tagids = np.array([1, 2, 3])
+    has = rng.random((n_games, 3)) < 0.3
+    gi, ti = np.nonzero(has)
+    logit_score = 1.2 + 0.4 * has[:, 2] + 0.8 * (has[:, 0] & has[:, 1])
+    score = 1 / (1 + np.exp(-(logit_score + rng.normal(0, 0.3, n_games))))
+    X, _ = model.design_matrix(
+        (gi, ti),
+        tagids,
+        n_games,
+        year=rng.integers(2015, 2025, n_games).astype(float),
+        price=np.full(n_games, 9.99),
+        is_free=np.zeros(n_games, bool),
+        early_access=np.zeros(n_games, bool),
+        review_count=rng.integers(20, 5000, n_games),
+    )
+    return X, score, has
+
+
+@pytest.mark.parametrize("small", [0, 10_000])
+def test_leave_mix_out_matches_a_real_refit(monkeypatch, small):
+    from scipy import sparse
+
+    from pipeline.analysis import leaveout
+
+    monkeypatch.setattr(leaveout, "SMALL_MIX", small)  # exercise both code paths
+    X, score, has = _planted_data(n_games=1_500)
+    y = model.logit(score)
+    base = leaveout.Baseline.fit(X, y, alpha=10)
+    rows = np.flatnonzero(has[:, 0] & has[:, 1])
+    pred, resid = base.held_out(rows)
+
+    keep = np.setdiff1d(np.arange(len(y)), rows)
+    refit = leaveout.Baseline.fit(X[keep], y[keep], alpha=10)
+    X1 = sparse.hstack([sparse.csr_matrix(np.ones((len(rows), 1))), X[rows]], format="csr")
+    direct = 1 / (1 + np.exp(-(X1 @ refit.beta)))
+    np.testing.assert_allclose(pred, direct, rtol=1e-8)
+    np.testing.assert_allclose(resid, score[rows] - direct, rtol=1e-6, atol=1e-10)
+
+
+def test_leave_mix_out_recovers_the_full_planted_interaction():
+    from pipeline.analysis import leaveout
+
+    X, score, has = _planted_data()
+    y = model.logit(score)
+    base = leaveout.Baseline.fit(X, y, alpha=10)
+    both = np.flatnonzero(has[:, 0] & has[:, 1])
+    # The planted effect in score units: the same games without the +0.8 logit bump.
+    true = np.mean(score[both] - 1 / (1 + np.exp(-(y[both] - 0.8))))
+    shared = np.mean(base.score[both] - base.predicted[both])
+    held = base.held_out(both)[1].mean()
+    assert shared < 0.75 * true  # the shared baseline absorbs a good part of it
+    assert held == pytest.approx(true, rel=0.1)
+
+
+def test_mix_effects_cluster_by_developer():
+    from pipeline.analysis import leaveout
+
+    X, score, has = _planted_data(n_games=2_000)
+    base = leaveout.Baseline.fit(X, model.logit(score), alpha=10)
+    rows = np.flatnonzero(has[:, 0] & has[:, 1])
+    dev = np.arange(len(score)) // 4  # four games per developer
+    out = leaveout.mix_effects(base, np.zeros(len(rows), int), rows, dev, 1)
+    pred, resid = base.held_out(rows)
+    per_dev = [resid[dev[rows] == d].mean() for d in np.unique(dev[rows])]
+    assert out["effect"][0] == pytest.approx(100 * np.mean(per_dev))
+    assert out["resid_var"][0] == pytest.approx(100**2 * np.var(per_dev, ddof=1))

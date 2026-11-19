@@ -145,7 +145,7 @@ Raw `n_pos / n` is noisy for small games. Fit a **beta-binomial prior** to all g
 - **For each combo**: `n_games`, mean shrunken score, bootstrap 90% CI, median review count, median release year.
 - **Developer clustering**: games from one developer aren't independent (sequels, asset-flip series), so each developer's games are averaged first, and CIs and p-values use developers as the unit (`n_devs`, minimum 5). Without this, one studio's series of about 30 near-identical games topped the triple rankings.
 - **Expected score**: fit a **ridge-regularized additive model**: logit(score) ~ Σ tag dummies, plus release-year and price controls. The combo's **interaction effect** = mean residual of games that have the combo. This is the main "this mix outperforms its parts" number.
-- Interaction effects are **conservative**: without interaction terms, the additive model absorbs part of a real interaction into its tags' own coefficients (a test with a planted effect recovers roughly 40% of it). Rankings are still valid; absolute sizes are lower bounds. This goes on the methodology page.
+- Interaction effects are **conservative**: without interaction terms, the additive model absorbs part of a real interaction into its tags' own coefficients (a test with a planted effect recovers roughly 40% of it). Rankings are still valid; absolute sizes are lower bounds. This goes on the methodology page. *(Fixed in P2.8: each mix is now compared with a leave-mix-out baseline.)*
 - **Simpler lift metric** for display: combo mean − mean of its single-tag means.
 - **Multiple-comparison caution**: thousands of combos means some look great by chance. Rank by the CI lower bound, apply a Benjamini-Hochberg flag, and say this on the methodology page.
 
@@ -325,8 +325,12 @@ first group protects the tracker, which can't recover days it misses.
 ### C. Better analysis
 - [x] **P2.7 Real launch dates for early-access games** from the first month of review history
   (fetched gradually through the scheduled workflow for all ~60k games).
-- [ ] **P2.8 Stronger mix model** with explicit, regularised pair terms so effect sizes are no longer
+- [x] **P2.8 Stronger mix model** with explicit, regularised pair terms so effect sizes are no longer
   lower bounds; validate on planted effects and document it on the Methodology page.
+  *Done differently:* pair terms only lifted planted-effect recovery from 68% to 72% (every game has ~10
+  tags, so a tag's main effect and its pair terms are nearly collinear). Instead each mix is compared with
+  the ridge model refitted without its own games, via the exact leave-group-out formula: 100% recovery vs
+  87% for the shared baseline, checked on every `stp analyze`.
 - [ ] **P2.9 Clone-studio grouping**: cluster by publisher and near-identical names from the same
   release window, on top of developer grouping.
 

@@ -205,36 +205,10 @@
    "n_games": 29,
    "n_devs": 29,
    "score": 72.5,
-   "predicted": 62.0,
-   "effect": 10.5,
-   "ci_low": 5.7,
-   "ci_high": 15.4
-  },
-  {
-   "tags": [
-    "Realistic",
-    "Incremental"
-   ],
-   "n_games": 28,
-   "n_devs": 26,
-   "score": 80.0,
-   "predicted": 71.5,
-   "effect": 8.5,
-   "ci_low": 4.1,
-   "ci_high": 12.8
-  },
-  {
-   "tags": [
-    "Board Game",
-    "Incremental"
-   ],
-   "n_games": 21,
-   "n_devs": 17,
-   "score": 86.6,
-   "predicted": 79.8,
-   "effect": 6.8,
-   "ci_low": 4.1,
-   "ci_high": 9.5
+   "predicted": 60.5,
+   "effect": 12.0,
+   "ci_low": 7.0,
+   "ci_high": 16.9
   },
   {
    "tags": [
@@ -244,36 +218,62 @@
    "n_games": 42,
    "n_devs": 39,
    "score": 73.5,
-   "predicted": 65.8,
-   "effect": 7.7,
-   "ci_low": 3.7,
-   "ci_high": 11.7
+   "predicted": 64.1,
+   "effect": 9.4,
+   "ci_low": 5.3,
+   "ci_high": 13.5
   },
   {
    "tags": [
-    "Horror",
-    "Medieval"
-   ],
-   "n_games": 20,
-   "n_devs": 20,
-   "score": 85.4,
-   "predicted": 79.4,
-   "effect": 6.0,
-   "ci_low": 3.5,
-   "ci_high": 8.6
-  },
-  {
-   "tags": [
-    "Tower Defense",
-    "VR"
+    "Board Game",
+    "Incremental"
    ],
    "n_games": 21,
-   "n_devs": 19,
-   "score": 82.8,
-   "predicted": 76.1,
-   "effect": 6.7,
-   "ci_low": 3.4,
+   "n_devs": 17,
+   "score": 86.6,
+   "predicted": 79.4,
+   "effect": 7.2,
+   "ci_low": 4.5,
    "ci_high": 9.9
+  },
+  {
+   "tags": [
+    "Realistic",
+    "Incremental"
+   ],
+   "n_games": 28,
+   "n_devs": 26,
+   "score": 80.0,
+   "predicted": 71.1,
+   "effect": 8.9,
+   "ci_low": 4.5,
+   "ci_high": 13.3
+  },
+  {
+   "tags": [
+    "Indie",
+    "Quick-Time Events"
+   ],
+   "n_games": 28,
+   "n_devs": 28,
+   "score": 87.4,
+   "predicted": 80.4,
+   "effect": 7.0,
+   "ci_low": 4.4,
+   "ci_high": 9.5
+  },
+  {
+   "tags": [
+    "Early Access",
+    "MOBA"
+   ],
+   "n_games": 18,
+   "n_devs": 18,
+   "score": 69.4,
+   "predicted": 59.8,
+   "effect": 9.5,
+   "ci_low": 4.0,
+   "ci_high": 15.0
   }
  ],
  "pairs_worst": [
@@ -285,10 +285,10 @@
    "n_games": 37,
    "n_devs": 36,
    "score": 55.7,
-   "predicted": 72.4,
-   "effect": -16.7,
-   "ci_low": -21.1,
-   "ci_high": -12.4
+   "predicted": 74.4,
+   "effect": -18.7,
+   "ci_low": -23.1,
+   "ci_high": -14.3
   },
   {
    "tags": [
@@ -298,10 +298,10 @@
    "n_games": 25,
    "n_devs": 24,
    "score": 64.5,
-   "predicted": 82.3,
-   "effect": -17.8,
-   "ci_low": -24.7,
-   "ci_high": -10.9
+   "predicted": 84.6,
+   "effect": -20.1,
+   "ci_low": -27.1,
+   "ci_high": -13.1
   },
   {
    "tags": [
@@ -311,23 +311,10 @@
    "n_games": 46,
    "n_devs": 45,
    "score": 59.5,
-   "predicted": 74.5,
-   "effect": -15.0,
-   "ci_low": -19.9,
-   "ci_high": -10.1
-  },
-  {
-   "tags": [
-    "Romance",
-    "VR"
-   ],
-   "n_games": 32,
-   "n_devs": 29,
-   "score": 65.6,
-   "predicted": 79.0,
-   "effect": -13.4,
-   "ci_low": -17.6,
-   "ci_high": -9.1
+   "predicted": 76.9,
+   "effect": -17.4,
+   "ci_low": -22.4,
+   "ci_high": -12.5
   },
   {
    "tags": [
@@ -337,23 +324,36 @@
    "n_games": 15,
    "n_devs": 15,
    "score": 63.5,
-   "predicted": 80.2,
-   "effect": -16.7,
-   "ci_low": -25.2,
-   "ci_high": -8.2
+   "predicted": 81.8,
+   "effect": -18.3,
+   "ci_low": -26.9,
+   "ci_high": -9.7
   },
   {
    "tags": [
-    "Board Game",
-    "Anime"
+    "Romance",
+    "VR"
    ],
-   "n_games": 59,
-   "n_devs": 49,
-   "score": 71.6,
-   "predicted": 82.4,
-   "effect": -10.8,
-   "ci_low": -14.3,
-   "ci_high": -7.4
+   "n_games": 32,
+   "n_devs": 29,
+   "score": 65.6,
+   "predicted": 79.4,
+   "effect": -13.8,
+   "ci_low": -18.0,
+   "ci_high": -9.5
+  },
+  {
+   "tags": [
+    "Free to Play",
+    "Incremental"
+   ],
+   "n_games": 387,
+   "n_devs": 347,
+   "score": 68.6,
+   "predicted": 78.5,
+   "effect": -9.9,
+   "ci_low": -11.2,
+   "ci_high": -8.7
   }
  ],
  "drift": {

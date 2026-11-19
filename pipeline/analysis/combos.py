@@ -97,3 +97,17 @@ JOIN n na ON na.tagid = a.tagid JOIN n nb ON nb.tagid = b.tagid
 GROUP BY a.tagid, b.tagid, na.n, nb.n
 HAVING LEAST(COUNT(*) / na.n, COUNT(*) / nb.n) >= $threshold
 """
+
+# (mix id, appid) for every game in every candidate mix; `cand` holds (cid, size, t1, t2, t3).
+MEMBERS_SQL = """
+SELECT c.cid, a.appid
+FROM rel a JOIN rel b ON a.appid = b.appid AND a.tagid < b.tagid
+JOIN cand c ON c.size = 2 AND c.t1 = a.tagid AND c.t2 = b.tagid
+UNION ALL
+SELECT c.cid, a.appid
+FROM rel a
+JOIN rel b ON a.appid = b.appid AND a.tagid < b.tagid
+JOIN rel x ON a.appid = x.appid AND b.tagid < x.tagid
+JOIN cand c ON c.size = 3 AND c.t1 = a.tagid AND c.t2 = b.tagid AND c.t3 = x.tagid
+ORDER BY 1, 2
+"""

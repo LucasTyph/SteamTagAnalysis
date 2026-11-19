@@ -155,7 +155,10 @@ function ComboView({
           label="Mix effect"
           value={fmtPp(s.effect)}
           tone={tone}
-          hint={s.ci ? `90% CI ${fmtPp(s.ci.low)} to ${fmtPp(s.ci.high)}` : "not enough data"}
+          hint={
+            (s.ci ? `90% CI ${fmtPp(s.ci.low)} to ${fmtPp(s.ci.high)}` : "not enough data") +
+            (s.live && selected.length > 1 ? " · live estimate, reads slightly low" : "")
+          }
         />
       </div>
       {selected.length === 1 && (

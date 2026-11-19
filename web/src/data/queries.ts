@@ -44,6 +44,8 @@ export interface ComboStats {
   predicted: number | null;
   effect: number | null;
   ci: Interval | null;
+  /** Computed in the browser against the shared baseline (not a precomputed mix). */
+  live?: boolean;
 }
 
 export interface Companion extends ComboStats {
@@ -140,7 +142,48 @@ function withCi<T extends RawStats>(r: T): Omit<T, "sd"> & { ci: Interval | null
 
 // --- queries -----------------------------------------------------------------------
 
+// --- precomputed pairs and triples ---------------------------------------------------
+// The pipeline measures each pair and triple against a baseline fitted without that
+// mix's games (leave-mix-out), which the browser can't do. With default filters,
+// those precomputed effects are used wherever they exist; otherwise effects are
+// computed live against the shared baseline (slightly conservative).
+
+export const isDefaultFilters = (f: Filters) => JSON.stringify(f) === JSON.stringify(DEFAULT_FILTERS);
+
+const PRE_COLS = `n_games, n_devs, mean_score::DOUBLE AS score, mean_predicted::DOUBLE AS predicted,
+  effect::DOUBLE AS effect, ci_low::DOUBLE AS low, ci_high::DOUBLE AS high`;
+
+type PreRow = Omit<ComboStats, "ci"> & { low: number | null; high: number | null };
+
+const fromPre = ({ low, high, ...rest }: PreRow): ComboStats => ({
+  ...rest,
+  ci: low == null || high == null ? null : { low, high },
+});
+
+async function precomputedCombo(tagIds: number[]): Promise<ComboStats | null> {
+  const [t1, t2, t3] = tagIds.map((t) => Math.trunc(Number(t))).sort((a, b) => a - b);
+  const rows = await query<PreRow>(`
+    SELECT ${PRE_COLS} FROM combos
+    WHERE t1 = ${t1} AND t2 = ${t2} AND t3 ${t3 == null ? "IS NULL" : `= ${t3}`}`);
+  return rows.length ? fromPre(rows[0]) : null;
+}
+
+async function precomputedCompanions(tagIds: number[]): Promise<Companion[]> {
+  const sel = ids(tagIds);
+  const other = (c: string) => `${c} NOT IN (${sel})`;
+  const rows = await query<PreRow & { tagid: number }>(`
+    SELECT CASE WHEN ${other("t1")} THEN t1 WHEN ${other("t2")} THEN t2 ELSE t3 END AS tagid, ${PRE_COLS}
+    FROM combos
+    WHERE size = ${tagIds.length + 1}
+      AND (t1 IN (${sel}))::INT + (t2 IN (${sel}))::INT + (COALESCE(t3, -1) IN (${sel}))::INT = ${tagIds.length}`);
+  return rows.map((r) => ({ tagid: r.tagid, ...fromPre(r) }));
+}
+
 export async function comboStats(tagIds: number[], f: Filters): Promise<ComboStats> {
+  if (isDefaultFilters(f) && (tagIds.length === 2 || tagIds.length === 3)) {
+    const pre = await precomputedCombo(tagIds);
+    if (pre) return pre;
+  }
   const [row] = await query<RawStats>(`
     WITH g AS (${matchingGames(tagIds, f)}),
     per_dev AS (
@@ -148,7 +191,7 @@ export async function comboStats(tagIds: number[], f: Filters): Promise<ComboSta
       FROM g GROUP BY dev_id
     )
     SELECT ${DEV_STATS} FROM per_dev`);
-  return withCi({ ...row, n_games: row.n_games ?? 0 });
+  return { ...withCi({ ...row, n_games: row.n_games ?? 0 }), live: true };
 }
 
 /** Stats for the current combo plus each other tag, for tags with enough developers. */
@@ -168,7 +211,11 @@ export async function companions(
     )
     SELECT tagid, ${DEV_STATS} FROM per_dev
     GROUP BY tagid HAVING COUNT(*) >= ${Math.trunc(minDevs)}`);
-  return rows.map(withCi);
+  const live = rows.map(withCi);
+  if (!isDefaultFilters(f) || tagIds.length < 1 || tagIds.length > 2) return live;
+  // Prefer the precomputed (leave-mix-out) numbers where the mix has them.
+  const pre = new Map((await precomputedCompanions(tagIds)).map((c) => [c.tagid, c]));
+  return live.map((c) => pre.get(c.tagid) ?? c);
 }
 
 export async function gamesIn(tagIds: number[], f: Filters, limit = 50): Promise<GameRow[]> {

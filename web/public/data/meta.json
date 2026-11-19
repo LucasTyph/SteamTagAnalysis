@@ -8,7 +8,7 @@
     "launch_corrected": 446
   },
   "analysis": {
-    "analyzed_at": "2026-11-19T21:57:44.488962+00:00",
+    "analyzed_at": "2026-11-19T22:33:27.115067+00:00",
     "n_games": 59853,
     "prior_alpha": 5.577367944295471,
     "prior_beta": 1.5305445015167478,
@@ -18,7 +18,13 @@
     "min_support": 15,
     "min_devs": 5,
     "ci_level": 0.9,
-    "synonym_threshold": 0.5
+    "synonym_threshold": 0.5,
+    "n": 60,
+    "planted_pp": 5.174250858735536,
+    "recovery_median": 0.9984446016013889,
+    "recovery_p10": 0.9761839987155972,
+    "shared_recovery_median": 0.8681266419018,
+    "shared_recovery_p10": 0.6278255975099682
   },
   "excluded_tags": [
     "Utilities",

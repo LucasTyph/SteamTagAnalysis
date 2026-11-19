@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pipeline.analysis import combos, model, shrinkage
+from pipeline.analysis import combos, leaveout, model, shrinkage
 from pipeline.config import ANALYSIS, ANALYSIS_DB_PATH, BUILD, AnalysisConfig, BuildConfig
 
 
@@ -34,7 +34,7 @@ def run(
         games = con.execute(
             """
             SELECT appid, n_pos, review_count, year(first_release) AS year, price_usd,
-                   is_free, is_early_access
+                   is_free, is_early_access, dev_key
             FROM games WHERE review_count >= ? ORDER BY appid
             """,
             [build_cfg.min_reviews],
@@ -77,6 +77,8 @@ def run(
         )
         fit = model.fit(X, score, tagids, names)
         log(f"model: ridge alpha {fit.alpha}, R² {fit.r2:.3f} (5-fold CV {fit.cv_r2:.3f})")
+        y = model.logit(score)
+        base = leaveout.Baseline.fit(X, y, fit.alpha)
 
         scores = pa.table(  # noqa: F841 — referenced in SQL
             {
@@ -126,16 +128,35 @@ def run(
                 ).to_arrow_table()
             )
         raw = pa.concat_tables(frames)
-        n = raw["n_devs"].to_numpy()
-        st = combos.effect_stats(
-            n, raw["effect"].to_numpy(), raw["resid_var"].to_numpy(), cfg.ci_level
+        raw = raw.append_column("cid", pa.array(np.arange(raw.num_rows)))
+        # Each mix against a baseline fitted without its own games (see leaveout.py).
+        cand = raw.select(["cid", "size", "t1", "t2", "t3"])  # noqa: F841
+        members = con.sql(combos.MEMBERS_SQL).fetchnumpy()
+        rows = np.searchsorted(games["appid"], members["appid"])
+        assert (games["appid"][rows] == members["appid"]).all(), "mix game not analysed"
+        dev_keys = np.asarray(games["dev_key"], dtype=object).astype(str)
+        dev = np.unique(dev_keys, return_inverse=True)[1]
+        held = leaveout.mix_effects(base, members["cid"], rows, dev, raw.num_rows)
+        raw = raw.rename_columns(
+            ["shared_effect" if c == "effect" else c for c in raw.column_names]
         )
+        raw = raw.set_column(
+            raw.column_names.index("mean_predicted"),
+            "mean_predicted",
+            pa.array(held["mean_predicted"]),
+        )
+        raw = raw.set_column(
+            raw.column_names.index("resid_var"), "resid_var", pa.array(held["resid_var"])
+        )
+        raw = raw.append_column("effect", pa.array(held["effect"]))
+        n = raw["n_devs"].to_numpy()
+        st = combos.effect_stats(n, held["effect"], held["resid_var"], cfg.ci_level)
         size = raw["size"].to_numpy()
         q = np.empty(len(n))
         for s in (2, 3):
             m = size == s
             q[m] = combos.bh_qvalues(st["p_value"][m])
-        combos_tbl = raw.drop_columns(["resid_var"])  # noqa: F841
+        combos_tbl = raw.drop_columns(["resid_var", "cid"])  # noqa: F841
         for k, v in {**st, "q_value": q}.items():
             combos_tbl = combos_tbl.append_column(k, pa.array(v))
         con.execute(
@@ -163,6 +184,12 @@ def run(
             FROM combos GROUP BY size ORDER BY size
             """
         ).fetchall()
+        recovery = _validate(base, X, y, fit.alpha, raw, members, rows)
+        log(
+            f"planted +{recovery['planted_pp']:.1f} pp on {recovery['n']} pairs: recovered "
+            f"{100 * recovery['recovery_median']:.0f}% (shared baseline "
+            f"{100 * recovery['shared_recovery_median']:.0f}%)"
+        )
         info = {
             "analyzed_at": datetime.now(UTC).isoformat(),
             "n_games": n_games,
@@ -175,6 +202,7 @@ def run(
             "min_devs": cfg.min_devs,
             "ci_level": cfg.ci_level,
             "synonym_threshold": cfg.synonym_threshold,
+            **recovery,
         }
         info_tbl = pa.table({k: [v] for k, v in info.items()})  # noqa: F841
         con.execute("CREATE OR REPLACE TABLE analysis_info AS SELECT * FROM info_tbl")
@@ -186,3 +214,30 @@ def run(
         return info
     finally:
         con.close()
+
+
+def _validate(base, X, y, alpha, raw, members, rows, n=60, delta=0.4, seed=0) -> dict:
+    """Plant a known interaction on random pairs and check how much each method recovers."""
+    rng = np.random.default_rng(seed)
+    size = raw["size"].to_numpy()
+    n_games = raw["n_games"].to_numpy()
+    ok = np.flatnonzero((size == 2) & (n_games >= 30) & (n_games <= 3000))
+    pick = rng.choice(ok, min(n, len(ok)), replace=False)
+    bounds = np.searchsorted(members["cid"], np.arange(raw.num_rows + 1))
+    groups = [rows[bounds[c] : bounds[c + 1]] for c in pick]
+    rec = leaveout.planted_recovery(X, y, alpha, groups, delta, seed=seed)
+    true_pp = np.mean([100 * _shift(base.y[g], delta).mean() for g in groups])
+    return {
+        "n": len(groups),
+        "planted_pp": float(true_pp),
+        "recovery_median": float(np.median(rec["leave_mix_out"])),
+        "recovery_p10": float(np.percentile(rec["leave_mix_out"], 10)),
+        "shared_recovery_median": float(np.median(rec["shared"])),
+        "shared_recovery_p10": float(np.percentile(rec["shared"], 10)),
+    }
+
+
+def _shift(y: np.ndarray, delta: float) -> np.ndarray:
+    from scipy import special
+
+    return special.expit(y + delta) - special.expit(y)

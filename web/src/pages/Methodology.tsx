@@ -112,9 +112,19 @@ export function Methodology() {
       </p>
       <p>
         A mix's <strong>effect</strong> is how far its games score above or below that prediction, in percentage points.
-        Three safeguards keep it honest:
+        Four safeguards keep it honest:
       </p>
       <ul>
+        <li>
+          <strong>Each mix gets its own baseline.</strong> With one shared baseline, a mix's own games help fit its
+          tags' coefficients, so part of a real interaction gets credited to the tags and the effect reads low. Every
+          pair and triple is instead compared with the model refitted <em>without its own games</em> (ridge regression
+          has an exact shortcut for this, so all {fmtInt(meta.counts.pairs + meta.counts.triples)} mixes take about two
+          minutes). Each analysis checks this by planting a known +{Number(a.planted_pp).toFixed(1)} point interaction
+          on {String(a.n)} random pairs: it recovers {(100 * Number(a.recovery_median)).toFixed(0)}% of it (the shared
+          baseline: {(100 * Number(a.shared_recovery_median)).toFixed(0)}%). On the real data most effects move by a few
+          percent; the biggest corrections are for mixes that make up a large share of one of their tags' games.
+        </li>
         <li>
           <strong>Developers count once.</strong> Games from the same developer aren't independent; one studio once
           released 30 near-identical games that dominated the rankings. Each developer's games are averaged first, and
@@ -132,10 +142,10 @@ export function Methodology() {
         </li>
       </ul>
       <p>
-        Effects are <strong>conservative</strong>. Because the baseline has no interaction terms, part of a real
-        interaction is absorbed into the tags' own coefficients; a test with a planted effect recovers roughly 40% of
-        it. Rankings hold, but sizes are lower bounds. Read an effect together with the mix's actual score: a mix can
-        beat its prediction and still score below average if it rescues a weak genre.
+        The <Link to="/explore">Tag Explorer</Link> shows these precomputed effects for pairs and triples. With filters
+        or a fourth tag it computes effects live in the browser against the shared baseline, which reads slightly low.
+        Read an effect together with the mix's actual score: a mix can beat its prediction and still score below
+        average if it rescues a weak genre.
       </p>
 
       <h2 id="timelines">Timelines</h2>
