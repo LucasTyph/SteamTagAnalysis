@@ -510,6 +510,12 @@ td.tone-negative {
   --plot-background: var(--surface);
 }
 
+/* Plot wraps charts that have a legend in a <figure>; drop the browser's default figure
+   margin so those charts keep their full width and line up with charts without one. */
+.plot figure {
+  margin: 0;
+}
+
 .plot svg {
   max-width: 100%;
   height: auto;

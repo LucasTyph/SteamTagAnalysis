@@ -190,7 +190,12 @@ function usePlot(build: (width: number) => Element | null, deps: unknown[]) {
 }
 
 function PerDayChart({ data }: { data: [string, number][] }) {
-  const rows = data.map(([day, n]) => ({ date: new Date(`${day}T00:00:00Z`), n }));
+  // Each bar spans one UTC day; tooltips anchor to the bar's centre (`mid`) so the
+  // popup sits on the bar and the hover zone matches the bar's own width.
+  const rows = data.map(([day, n]) => {
+    const start = Date.parse(`${day}T00:00:00Z`);
+    return { day, start: new Date(start), end: new Date(start + 86400000), mid: new Date(start + 43200000), n };
+  });
   const ref = usePlot(
     (width) =>
       Plot.plot({
@@ -200,9 +205,9 @@ function PerDayChart({ data }: { data: [string, number][] }) {
         x: { type: "utc", label: null },
         y: { label: "↑ Games", grid: true },
         marks: [
-          Plot.rectY(rows, { x: "date", y: "n", interval: "day", fill: SERIES_COLORS[0], inset: 0.5 }),
+          Plot.rectY(rows, { x1: "start", x2: "end", y: "n", fill: SERIES_COLORS[0], inset: 0.5 }),
           Plot.ruleY([0]),
-          Plot.tip(rows, Plot.pointerX({ x: "date", y: "n", title: (r) => `${fmtDate(r.date.toISOString().slice(0, 10))}: ${r.n} releases` })),
+          Plot.tip(rows, Plot.pointerX({ x: "mid", y: "n", title: (r) => `${fmtDate(r.day)}: ${r.n} releases` })),
         ],
         style: { background: "transparent", fontSize: "12px" },
       }),
@@ -242,6 +247,14 @@ function SettleBlock({ s }: { s: Settle }) {
               }),
               Plot.ruleX([0], { stroke: "currentColor", strokeOpacity: 0.5 }),
               Plot.ruleY([0]),
+              Plot.tip(
+                histogram(s.changes!),
+                Plot.pointerX({
+                  x: (b) => (b.x1 + b.x2) / 2,
+                  y: "n",
+                  title: (b) => `${b.x1 > 0 ? "+" : ""}${b.x1} to ${b.x2 > 0 ? "+" : ""}${b.x2} points: ${b.n} games`,
+                }),
+              ),
             ],
             style: { background: "transparent", fontSize: "11px" },
           })
@@ -442,6 +455,8 @@ function GameDetail({ appid, games, onClose }: { appid: number; games: ReleaseGa
     const last = Math.max(0, ...days.data.days.map(([d]) => d));
     return cumulativeSeries(days.data, last);
   }, [days.data]);
+  // Shared x range so the two charts line up: bars span [day, day + 1).
+  const xDomain: [number, number] = [0, series.length];
 
   const volRef = usePlot(
     (width) =>
@@ -450,7 +465,7 @@ function GameDetail({ appid, games, onClose }: { appid: number; games: ReleaseGa
             width,
             height: 160,
             marginLeft: 40,
-            x: { label: "Days since release →" },
+            x: { label: "Days since release →", domain: xDomain },
             y: { label: "↑ Reviews per day", grid: true },
             color: { domain: ["positive", "negative"], range: [POS, NEG], legend: true },
             marks: [
@@ -462,7 +477,15 @@ function GameDetail({ appid, games, onClose }: { appid: number; games: ReleaseGa
                 { x1: "day", x2: (r) => r.day + 1, y: "n", fill: "kind", inset: 0.3 },
               ),
               Plot.ruleY([0]),
-              Plot.tip(series, Plot.pointerX({ x: "day", y: (s) => s.up + s.down, title: (s) => `Day ${s.day}: ${s.up} positive, ${s.down} negative` })),
+              // Bars span [day, day + 1): anchor tooltips at the centre of each bar.
+              Plot.tip(
+                series,
+                Plot.pointerX({
+                  x: (s) => s.day + 0.5,
+                  y: (s) => s.up + s.down,
+                  title: (s) => `Day ${s.day}: ${s.up} positive, ${s.down} negative`,
+                }),
+              ),
             ],
             style: { background: "transparent", fontSize: "11px" },
           })
@@ -476,13 +499,13 @@ function GameDetail({ appid, games, onClose }: { appid: number; games: ReleaseGa
             width,
             height: 200,
             marginLeft: 40,
-            x: { label: "Days since release →" },
+            x: { label: "Days since release →", domain: xDomain },
             y: { label: "↑ Cumulative % positive", domain: [0, 100], grid: true },
             marks: [
-              Plot.line(series, { x: "day", y: (s) => s.pct ?? Number.NaN, stroke: SERIES_COLORS[0], strokeWidth: 2 }),
+              Plot.line(series, { x: (s) => s.day + 0.5, y: (s) => s.pct ?? Number.NaN, stroke: SERIES_COLORS[0], strokeWidth: 2 }),
               Plot.tip(
                 series.filter((s) => s.pct != null),
-                Plot.pointerX({ x: "day", y: "pct", title: (s) => `Day ${s.day}: ${s.pct!.toFixed(1)}% positive of ${s.cumN} reviews` }),
+                Plot.pointerX({ x: (s) => s.day + 0.5, y: "pct", title: (s) => `Day ${s.day}: ${s.pct!.toFixed(1)}% positive of ${s.cumN} reviews` }),
               ),
             ],
             style: { background: "transparent", fontSize: "11px" },
