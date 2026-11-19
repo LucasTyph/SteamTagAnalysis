@@ -22,7 +22,7 @@
   },
   {
    "year": 2014,
-   "games": 1380,
+   "games": 1381,
    "score": 73.6
   },
   {
@@ -57,7 +57,7 @@
   },
   {
    "year": 2021,
-   "games": 4677,
+   "games": 4678,
    "score": 79.5
   },
   {
@@ -72,12 +72,12 @@
   },
   {
    "year": 2024,
-   "games": 7033,
+   "games": 7032,
    "score": 79.8
   },
   {
    "year": 2025,
-   "games": 7310,
+   "games": 7309,
    "score": 81.2
   },
   {
@@ -112,7 +112,7 @@
   {
    "name": "Sokoban",
    "n_games": 289,
-   "n_devs": 242,
+   "n_devs": 241,
    "mean_score": 89.7,
    "coef": 0.419
   },
@@ -126,7 +126,7 @@
   {
    "name": "Boomer Shooter",
    "n_games": 292,
-   "n_devs": 259,
+   "n_devs": 258,
    "mean_score": 85.4,
    "coef": 0.323
   },
@@ -140,14 +140,14 @@
   {
    "name": "Classic",
    "n_games": 739,
-   "n_devs": 397,
+   "n_devs": 390,
    "mean_score": 82.7,
    "coef": 0.29
   },
   {
    "name": "Moddable",
    "n_games": 300,
-   "n_devs": 271,
+   "n_devs": 270,
    "mean_score": 81.5,
    "coef": 0.244
   }
@@ -156,14 +156,14 @@
   {
    "name": "MMORPG",
    "n_games": 503,
-   "n_devs": 443,
+   "n_devs": 438,
    "mean_score": 65.3,
    "coef": -0.434
   },
   {
    "name": "Massively Multiplayer",
    "n_games": 1038,
-   "n_devs": 878,
+   "n_devs": 867,
    "mean_score": 65.0,
    "coef": -0.367
   },
@@ -177,14 +177,14 @@
   {
    "name": "MOBA",
    "n_games": 166,
-   "n_devs": 158,
+   "n_devs": 157,
    "mean_score": 67.7,
    "coef": -0.259
   },
   {
    "name": "Idler",
    "n_games": 1865,
-   "n_devs": 1589,
+   "n_devs": 1582,
    "mean_score": 76.0,
    "coef": -0.256
   },
@@ -197,32 +197,6 @@
   }
  ],
  "pairs_best": [
-  {
-   "tags": [
-    "Massively Multiplayer",
-    "Loot"
-   ],
-   "n_games": 29,
-   "n_devs": 29,
-   "score": 72.5,
-   "predicted": 60.5,
-   "effect": 12.0,
-   "ci_low": 7.0,
-   "ci_high": 16.9
-  },
-  {
-   "tags": [
-    "MMORPG",
-    "Loot"
-   ],
-   "n_games": 42,
-   "n_devs": 39,
-   "score": 73.5,
-   "predicted": 64.1,
-   "effect": 9.4,
-   "ci_low": 5.3,
-   "ci_high": 13.5
-  },
   {
    "tags": [
     "Board Game",
@@ -274,6 +248,32 @@
    "effect": 9.5,
    "ci_low": 4.0,
    "ci_high": 15.0
+  },
+  {
+   "tags": [
+    "Horror",
+    "Medieval"
+   ],
+   "n_games": 20,
+   "n_devs": 20,
+   "score": 85.4,
+   "predicted": 79.0,
+   "effect": 6.4,
+   "ci_low": 3.8,
+   "ci_high": 9.0
+  },
+  {
+   "tags": [
+    "Tower Defense",
+    "VR"
+   ],
+   "n_games": 21,
+   "n_devs": 19,
+   "score": 82.8,
+   "predicted": 75.8,
+   "effect": 7.0,
+   "ci_low": 3.8,
+   "ci_high": 10.3
   }
  ],
  "pairs_worst": [
@@ -348,11 +348,11 @@
     "Incremental"
    ],
    "n_games": 387,
-   "n_devs": 347,
+   "n_devs": 346,
    "score": 68.6,
    "predicted": 78.5,
    "effect": -9.9,
-   "ci_low": -11.2,
+   "ci_low": -11.1,
    "ci_high": -8.7
   }
  ],

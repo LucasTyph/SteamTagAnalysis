@@ -10,8 +10,9 @@
 - timelines/<appid>.json      monthly history, turning points, announcements (lazy-loaded)
 - timelines/tag_curves.json   average trajectory by primary tag
 
-Developer keys are replaced by small integer IDs, so the browser can still
-cluster by developer for arbitrary combos without shipping the keys.
+Developer keys (studio groups, see build/studios.py) are replaced by small integer
+IDs, so the browser can still cluster by developer for arbitrary combos without
+shipping the keys; `group_devs` says how many developer accounts a group merges.
 """
 
 from __future__ import annotations
@@ -37,8 +38,12 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
         con.execute(
             """
             CREATE TEMP TABLE dev_ids AS
-            SELECT dev_key, (ROW_NUMBER() OVER (ORDER BY dev_key))::INTEGER AS dev_id
-            FROM (SELECT DISTINCT dev_key FROM games WHERE review_count >= ?)
+            SELECT dev_key, (ROW_NUMBER() OVER (ORDER BY dev_key))::INTEGER AS dev_id,
+                   group_devs::SMALLINT AS group_devs
+            FROM (
+                SELECT dev_key, COUNT(DISTINCT COALESCE(dev_key_raw, dev_key)) AS group_devs
+                FROM games WHERE review_count >= ? GROUP BY dev_key
+            )
             """,
             [BUILD.min_reviews],
         )
@@ -49,7 +54,7 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
                    g.review_count::INTEGER AS review_count, g.pct_positive::TINYINT AS pct_positive,
                    round(s.score, 2)::FLOAT AS score, round(s.predicted, 2)::FLOAT AS predicted,
                    round(s.resid, 2)::FLOAT AS resid, g.price_usd::FLOAT AS price_usd, g.is_free,
-                   g.is_early_access, g.developer, d.dev_id
+                   g.is_early_access, g.developer, d.dev_id, d.group_devs
             FROM games g JOIN game_scores s USING (appid) JOIN dev_ids d USING (dev_key)
             ORDER BY g.appid
             """,

@@ -280,6 +280,10 @@ def build():
         f"  launch dates: {counts['first_reviews']:,} first-review dates, "
         f"{counts['launch_corrected']:,} games launched 30+ days before Steam's date"
     )
+    console.print(
+        f"  studio groups: {counts['grouped_devs']:,} developer keys merged into "
+        f"{counts['studio_groups']:,} groups ({counts['studio_links']:,} links)"
+    )
 
 
 @app.command()

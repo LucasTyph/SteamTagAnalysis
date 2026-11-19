@@ -159,7 +159,9 @@ def test_games_without_developer_get_own_cluster(tmp_path):
     out = tmp_path / "a.duckdb"
     run(conn, out, CFG, launch_dates=None)
     con = duckdb.connect(str(out), read_only=True)
-    assert con.execute("SELECT appid, dev_key FROM games ORDER BY appid").fetchall() == [
+    # dev_key_raw is the per-developer key; dev_key may merge these two identical fixture
+    # games into one studio group (see test_studios.py).
+    assert con.execute("SELECT appid, dev_key_raw FROM games ORDER BY appid").fetchall() == [
         (1, "clan:9"),
         (2, "app:2"),
     ]

@@ -9,6 +9,7 @@ Tables written to `data/analysis.duckdb`:
 from __future__ import annotations
 
 import sqlite3
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -221,6 +222,7 @@ def run(
         )
         _apply_launch_dates(con, first_reviews)
         con.execute("CREATE TABLE game_tags AS SELECT * FROM tags_arrow ORDER BY appid, rank")
+        studio = _group_studios(con, cfg)
         con.execute(
             """
             CREATE TABLE tags AS
@@ -262,7 +264,7 @@ def run(
         )
         con.execute(
             "CREATE TABLE build_info AS SELECT ? AS built_at, ? AS min_reviews, "
-            "? AS tag_max_rank, ? AS tag_min_share, "
+            "? AS tag_max_rank, ? AS tag_min_share, ? AS studio_groups, ? AS grouped_devs, "
             "COUNT(first_review) FILTER (WHERE review_count >= ?) AS launch_dates, "
             "COUNT(*) FILTER (WHERE launch_source = 'first_review' AND review_count >= ?) "
             "AS launch_corrected FROM games",
@@ -271,6 +273,8 @@ def run(
                 cfg.min_reviews,
                 cfg.tag_max_rank,
                 cfg.tag_min_share,
+                studio["groups"],
+                studio["grouped_devs"],
                 cfg.min_reviews,
                 cfg.min_reviews,
             ],
@@ -284,6 +288,9 @@ def run(
             "tags": len(tag_names),
             "with_developer": sum(1 for c in creators if c["dev_key"]),
             "timeline_games": len({r[0] for r in monthly}),
+            "studio_links": studio["links"],
+            "studio_groups": studio["groups"],
+            "grouped_devs": studio["grouped_devs"],
             "first_reviews": len(first_reviews),
             "launch_corrected": con.execute(
                 "SELECT COUNT(*) FROM games WHERE launch_source = 'first_review' "
@@ -345,3 +352,63 @@ def _apply_launch_dates(con, first_reviews: dict[int, date]) -> None:
         ORDER BY g.appid
         """
     )
+
+
+def _group_studios(con, cfg: BuildConfig) -> dict[str, int]:
+    """Merge developer keys that look like one clone operation (see studios.py).
+
+    `dev_key` becomes the studio-group key that every statistic clusters on; the
+    original is kept as `dev_key_raw`, and the links behind each merge go to
+    `studio_links`.
+    """
+    import pyarrow as pa
+
+    from pipeline.build import studios
+
+    tags: dict[int, dict[int, int]] = defaultdict(dict)
+    for appid, tagid, rank in con.execute(
+        """
+        SELECT gt.appid, gt.tagid, gt.rank FROM game_tags gt JOIN games g USING (appid)
+        WHERE gt.relevant AND g.review_count >= ?
+        """,
+        [cfg.min_reviews],
+    ).fetchall():
+        tags[appid][tagid] = cfg.tag_max_rank + 1 - rank
+    games = [
+        studios.Game(a, name, dev, pub, key, released, n, tags.get(a, {}))
+        for a, name, dev, pub, key, released, n in con.execute(
+            """
+            SELECT appid, name, developer, publisher, dev_key, first_release::DATE, review_count
+            FROM games WHERE review_count >= ? ORDER BY appid
+            """,
+            [cfg.min_reviews],
+        ).fetchall()
+    ]
+    links = studios.find_links(games)
+    keys = studios.studio_keys(games, links)
+    mapping = pa.table(  # noqa: F841 — referenced by DuckDB SQL
+        {"dev_key": list(keys), "studio_key": list(keys.values())}
+    )
+    con.execute(
+        """
+        CREATE OR REPLACE TABLE games AS
+        SELECT g.* EXCLUDE (dev_key), COALESCE(m.studio_key, g.dev_key) AS dev_key,
+               g.dev_key AS dev_key_raw
+        FROM games g LEFT JOIN mapping m USING (dev_key)
+        ORDER BY g.appid
+        """
+    )
+    link_tbl = pa.table(  # noqa: F841
+        {
+            "appid_a": pa.array([x.a for x in links], pa.int64()),
+            "appid_b": pa.array([x.b for x in links], pa.int64()),
+            "rule": pa.array([x.rule for x in links], pa.string()),
+            "similarity": pa.array([x.similarity for x in links], pa.float64()),
+        }
+    )
+    con.execute("CREATE TABLE studio_links AS SELECT * FROM link_tbl")
+    sizes = defaultdict(int)
+    for studio in keys.values():
+        sizes[studio] += 1
+    merged = [n for n in sizes.values() if n > 1]
+    return {"links": len(links), "groups": len(merged), "grouped_devs": sum(merged)}

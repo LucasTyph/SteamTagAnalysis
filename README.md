@@ -22,6 +22,8 @@ games and 120M reviews, and a static website that queries the results in the bro
 - **Mix effects, done carefully.** Each game's score is an empirical-Bayes estimate. A ridge model predicts it from
   its tags, and a tag mix's *effect* is how far its games beat that prediction. Statistics are **clustered by
   developer**: one studio's 30 near-identical games once topped the rankings, so each developer now counts once.
+  Clone operations that ship look-alike games under a new developer name each time are grouped into one
+  (shared publisher, near-identical titles, or self-named shells with matching tags and release windows).
   Each mix is compared with the model refitted without its own games (an exact closed form for ridge), which
   recovers 100% of a planted interaction instead of 87%. Rankings use 90% CIs with Benjamini–Hochberg
   false-discovery control.

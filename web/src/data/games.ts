@@ -23,6 +23,8 @@ export interface GameDetail extends GameHit {
   /** Share of all games beating their prediction by less than this one, 0–100. */
   resid_pctile: number;
   dev_games: number;
+  /** Developer accounts merged into this game's studio group (1 = not grouped). */
+  group_devs: number;
   tagids: number[]; // relevant tags, by vote rank
 }
 
@@ -81,6 +83,7 @@ export async function gameDetail(appid: number): Promise<GameDetail | null> {
            resid::DOUBLE AS resid, price_usd::DOUBLE AS price_usd, is_free, is_early_access,
            developer, dev_id, score_pctile::DOUBLE AS score_pctile,
            resid_pctile::DOUBLE AS resid_pctile, dev_games::INTEGER AS dev_games,
+           group_devs::INTEGER AS group_devs,
            (SELECT list(tagid ORDER BY rank) FROM game_tags t WHERE t.appid = ranked.appid) AS tagids
     FROM ranked WHERE appid = ${int(appid)}`);
   if (!rows.length) return null;

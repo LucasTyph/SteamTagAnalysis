@@ -112,7 +112,7 @@ export function Methodology() {
       </p>
       <p>
         A mix's <strong>effect</strong> is how far its games score above or below that prediction, in percentage points.
-        Four safeguards keep it honest:
+        Five safeguards keep it honest:
       </p>
       <ul>
         <li>
@@ -130,6 +130,15 @@ export function Methodology() {
           released 30 near-identical games that dominated the rankings. Each developer's games are averaged first, and
           confidence intervals use developers as the unit. A mix needs at least {String(a.min_devs)} developers and{" "}
           {String(a.min_support)} games.
+        </li>
+        <li>
+          <strong>Look-alike developers count as one.</strong> Clone operations release near-identical games under a new
+          developer name each time. Developers are grouped when two of their games have near-identical tags, came out
+          close together, and share a publisher (small games only), a near-identical title (&ldquo;Hentai Girl
+          Karen&rdquo; / &ldquo;Hentai Girl Linda&rdquo;), or are both shells named after the game (a wave of Chinese
+          &ldquo;传奇&rdquo; MMO clones). That merged {fmtInt(Number(b.grouped_devs))} developer accounts into{" "}
+          {fmtInt(Number(b.studio_groups))} groups. It errs toward merging: a wrong merge only widens a confidence
+          interval, while a missed clone series can fake a hidden gem.
         </li>
         <li>
           <strong>Multiple testing.</strong> With tens of thousands of mixes, some look great by chance. Hidden Gems only
@@ -189,8 +198,8 @@ export function Methodology() {
           )}
         </li>
         <li>
-          <strong>Developer clustering has gaps:</strong> some studios publish each game under its own name, so a series
-          can still count as several developers.
+          <strong>Developer grouping is a heuristic:</strong> a clone series that varies its titles and tags can still
+          count as several developers, and a few unrelated developers with near-identical small games get merged.
         </li>
         <li>
           <strong>Correlation only:</strong> a mix that scores well isn't a recipe; the games in it may share other

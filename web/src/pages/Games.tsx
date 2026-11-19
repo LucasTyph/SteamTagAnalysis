@@ -183,11 +183,21 @@ function GameHeader({ game: g, tags }: { game: GameDetail; tags: Tag[] }) {
         Games tagged like this one{tags.length ? ` (${tags.slice(0, 3).map((t) => t.name).join(", ")}…)` : ""}, from the
         same year, price band and popularity, are expected to score about <strong>{fmtPct(g.predicted, 0)}</strong>.{" "}
         {g.name} scores <strong>{Math.abs(g.resid).toFixed(1)} points</strong> {above ? "above" : "below"} that.
-        {g.dev_games > 1 && (
+        {g.group_devs > 1 ? (
           <>
             {" "}
-            Its developer has {fmtInt(g.dev_games - 1)} other {g.dev_games === 2 ? "game" : "games"} in the data.
+            Its developer is grouped with {fmtInt(g.group_devs - 1)} other developer{" "}
+            {g.group_devs === 2 ? "account" : "accounts"} that release look-alike games ({fmtInt(g.dev_games)} games in
+            all), so the group counts as one developer in every statistic (see the{" "}
+            <Link to="/methodology">methodology</Link>).
           </>
+        ) : (
+          g.dev_games > 1 && (
+            <>
+              {" "}
+              Its developer has {fmtInt(g.dev_games - 1)} other {g.dev_games === 2 ? "game" : "games"} in the data.
+            </>
+          )
         )}
       </p>
     </>

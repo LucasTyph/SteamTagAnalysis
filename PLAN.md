@@ -331,8 +331,10 @@ first group protects the tracker, which can't recover days it misses.
   tags, so a tag's main effect and its pair terms are nearly collinear). Instead each mix is compared with
   the ridge model refitted without its own games, via the exact leave-group-out formula: 100% recovery vs
   87% for the shared baseline, checked on every `stp analyze`.
-- [ ] **P2.9 Clone-studio grouping**: cluster by publisher and near-identical names from the same
-  release window, on top of developer grouping.
+- [x] **P2.9 Clone-studio grouping**: cluster by publisher and near-identical names from the same
+  release window, on top of developer grouping. Plus a third rule for self-named shells (the Chinese
+  "传奇" MMO clones that topped Hidden Gems). Publisher and name links only apply to games under 2,000
+  reviews, so franchises and big publishers' studios stay apart: 489 developer accounts → 155 groups.
 
 ### D. Keeping it current
 - [ ] **P2.10 Scheduled refresh of the main dataset** (monthly): slim the cached store data so a

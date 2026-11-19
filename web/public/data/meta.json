@@ -1,30 +1,32 @@
 {
   "build": {
-    "built_at": "2026-11-19T21:57:30.178676+00:00",
+    "built_at": "2026-11-19T22:52:34.682986+00:00",
     "min_reviews": 20,
     "tag_max_rank": 10,
     "tag_min_share": null,
-    "launch_dates": 5000,
-    "launch_corrected": 446
+    "studio_groups": 155,
+    "grouped_devs": 489,
+    "launch_dates": 5044,
+    "launch_corrected": 450
   },
   "analysis": {
-    "analyzed_at": "2026-11-19T22:33:27.115067+00:00",
+    "analyzed_at": "2026-11-19T22:55:12.106273+00:00",
     "n_games": 59853,
     "prior_alpha": 5.577367944295471,
     "prior_beta": 1.5305445015167478,
     "ridge_alpha": 10,
-    "r2": 0.30604487067823105,
-    "cv_r2": 0.29553496623688025,
+    "r2": 0.3060559848752955,
+    "cv_r2": 0.2955463017407425,
     "min_support": 15,
     "min_devs": 5,
     "ci_level": 0.9,
     "synonym_threshold": 0.5,
     "n": 60,
-    "planted_pp": 5.174250858735536,
-    "recovery_median": 0.9984446016013889,
-    "recovery_p10": 0.9761839987155972,
-    "shared_recovery_median": 0.8681266419018,
-    "shared_recovery_p10": 0.6278255975099682
+    "planted_pp": 5.2716218864461455,
+    "recovery_median": 0.9915157463731038,
+    "recovery_p10": 0.965938742293465,
+    "shared_recovery_median": 0.8213405577608621,
+    "shared_recovery_p10": 0.5894663072135303
   },
   "excluded_tags": [
     "Utilities",
@@ -41,9 +43,9 @@
   ],
   "counts": {
     "games": 59853,
-    "developers": 36047,
+    "developers": 35713,
     "tags": 420,
-    "pairs": 17264,
-    "triples": 71529
+    "pairs": 17262,
+    "triples": 71513
   }
 }
