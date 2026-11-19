@@ -28,3 +28,6 @@ tracking-data/
 
 # New Releases data is generated from the tracking-data branch at deploy time
 web/public/data/releases/
+
+# TypeScript incremental build info
+*.tsbuildinfo

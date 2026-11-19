@@ -446,23 +446,6 @@
    "top_publisher_games": 4
   },
   {
-   "month": "2026-05",
-   "n": 11,
-   "avg_shift": -38.0,
-   "games": [
-    "One Hour One Life",
-    "Europa Universalis V",
-    "Warhammer 40,000: Mechanicus",
-    "Party Animals",
-    "Eternal Return",
-    "Mall Simulator",
-    "Pantheon: Rise of the Fallen",
-    "Phasmophobia"
-   ],
-   "top_publisher": "Kasedo Games",
-   "top_publisher_games": 1
-  },
-  {
    "month": "2025-04",
    "n": 11,
    "avg_shift": -53.8,
@@ -478,6 +461,23 @@
    ],
    "top_publisher": "2K",
    "top_publisher_games": 4
+  },
+  {
+   "month": "2026-05",
+   "n": 11,
+   "avg_shift": -38.0,
+   "games": [
+    "One Hour One Life",
+    "Europa Universalis V",
+    "Warhammer 40,000: Mechanicus",
+    "Party Animals",
+    "Eternal Return",
+    "Mall Simulator",
+    "Pantheon: Rise of the Fallen",
+    "Phasmophobia"
+   ],
+   "top_publisher": "F13 Games",
+   "top_publisher_games": 1
   }
  ],
  "tag_aging": [

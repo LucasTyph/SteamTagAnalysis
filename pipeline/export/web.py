@@ -149,7 +149,7 @@ def _export_timelines(con, out: Path, max_news: int = 15) -> None:
                (SELECT list(t.name ORDER BY gt.rank)[1:3] FROM game_tags gt
                 JOIN tag_stats t USING (tagid) WHERE gt.appid = tg.appid AND gt.relevant) AS tags
         FROM timeline_games tg JOIN games g USING (appid)
-        ORDER BY tg.total_reviews DESC
+        ORDER BY tg.total_reviews DESC, tg.appid
         """
     ).fetchall()
     for r in rows:
