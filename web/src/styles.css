@@ -525,11 +525,48 @@ td.tone-negative {
 }
 
 .network {
+  position: relative;
   margin: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 8px;
+}
+
+.network-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.network-controls button {
+  font: inherit;
+  font-size: 0.85rem;
+  min-width: 30px;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.network-controls button:hover {
+  border-color: var(--accent);
+}
+
+/* Background drags pan the graph; vertical swipes on touch still scroll the page. */
+.network-canvas {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.network-canvas:active {
+  cursor: grabbing;
 }
 
 .network svg {
@@ -555,6 +592,7 @@ td.tone-negative {
 
 .network .nodes g {
   cursor: pointer;
+  touch-action: none; /* a touch on a tag drags it instead of scrolling */
 }
 
 .network circle {
