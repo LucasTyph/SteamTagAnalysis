@@ -42,7 +42,7 @@ export function App() {
       </main>
       <footer className="footer muted">
         Data from the Steam store{asOf ? `, as of ${asOf}` : ""}, refreshed monthly. Not affiliated with Valve. ·{" "}
-        <NavLink to="/methodology">Methodology</NavLink> ·{" "}
+        <NavLink to="/writeup">Write-up</NavLink> · <NavLink to="/methodology">Methodology</NavLink> ·{" "}
         <a href="https://github.com/LucasTyph/SteamTagAnalysis">Source on GitHub</a>
       </footer>
     </div>

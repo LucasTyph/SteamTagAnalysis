@@ -348,6 +348,8 @@ first group protects the tracker, which can't recover days it misses.
   Favicon, Open Graph/Twitter tags with absolute URLs from `VITE_SITE_URL`, a 1200x630 card drawn from
   the data (`scripts/og_image.py`), and per-page titles/descriptions (game names, tag mixes). Previews
   are site-wide: with hash routing, crawlers only ever fetch index.html.
-- [ ] **P2.12 Write-up**: a short article on the most interesting findings (asset-flip trap,
+- [x] **P2.12 Write-up**: a short article on the most interesting findings (asset-flip trap,
   publisher-wide review bombs, No Man's Sky's comeback), linked from the README and site.
+  On the site at `#/writeup`, dated November 2026 (its argument quotes fixed numbers; its charts read
+  the live data), linked from Home, Findings, the footer and the README.
 - [ ] **P2.13 Frontend tests**: Vitest for query/stats helpers and a browser smoke test in CI.

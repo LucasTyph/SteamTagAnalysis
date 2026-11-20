@@ -11,11 +11,15 @@ games and 120M reviews, and a static website that queries the results in the bro
 > · [Review Timelines](https://lucastyph.github.io/SteamTagAnalysis/#/timelines?games=275850)
 > · [New Releases](https://lucastyph.github.io/SteamTagAnalysis/#/releases)
 > · [Findings](https://lucastyph.github.io/SteamTagAnalysis/#/findings)
+> · [Write-up](https://lucastyph.github.io/SteamTagAnalysis/#/writeup)
 > · [Methodology](https://lucastyph.github.io/SteamTagAnalysis/#/methodology)
 
 | Tag Explorer | Review Timelines |
 |---|---|
 | ![Tag Explorer: Tower Defense + VR beats its prediction by 6.7 points](docs/screenshots/tag-explorer.jpg) | ![No Man's Sky review timeline with turning points](docs/screenshots/timelines.jpg) |
+
+**Read the write-up:** [What 60,000 Steam games say about genre mixes](https://lucastyph.github.io/SteamTagAnalysis/#/writeup),
+covering the asset-flip trap, publisher-wide review bombs and No Man's Sky's comeback.
 
 ## Highlights
 

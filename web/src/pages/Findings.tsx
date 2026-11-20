@@ -36,7 +36,8 @@ function FindingsView({ f }: { f: Data }) {
         <p className="lede">
           What 60,000 Steam games and 120 million reviews say about genre mixes and how reception changes over time.
           Every number below is generated from the data by the pipeline. See the <Link to="/methodology">methodology</Link>{" "}
-          for how it's measured and what it can't tell you.
+          for how it's measured and what it can't tell you, or the <Link to="/writeup">write-up</Link> for the story
+          behind the most interesting ones.
         </p>
       </header>
 

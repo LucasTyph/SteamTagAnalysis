@@ -58,8 +58,11 @@ export function Home() {
           <Link className="button primary" to="/explore">
             Explore tag mixes
           </Link>
+          <Link className="button" to="/writeup">
+            Read the write-up
+          </Link>
           <Link className="button" to="/findings">
-            Read the findings
+            See the findings
           </Link>
         </div>
       </div>

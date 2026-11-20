@@ -15,6 +15,7 @@ const Releases = lazy(() => import("./pages/Releases").then((m) => ({ default: m
 const Findings = lazy(() => import("./pages/Findings").then((m) => ({ default: m.Findings })));
 const Methodology = lazy(() => import("./pages/Methodology").then((m) => ({ default: m.Methodology })));
 const Games = lazy(() => import("./pages/Games").then((m) => ({ default: m.Games })));
+const WriteUp = lazy(() => import("./pages/WriteUp").then((m) => ({ default: m.WriteUp })));
 const HiddenGems = lazy(() => import("./pages/HiddenGems").then((m) => ({ default: m.HiddenGems })));
 const page = (el: JSX.Element) => <Suspense fallback={<Loading label="Loading page…" />}>{el}</Suspense>;
 
@@ -34,6 +35,7 @@ const router = createHashRouter([
       { path: "releases", element: page(<Releases />) },
       { path: "findings", element: page(<Findings />) },
       { path: "methodology", element: page(<Methodology />) },
+      { path: "writeup", element: page(<WriteUp />) },
       { path: "*", element: <NotFound /> },
     ],
   },

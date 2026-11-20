@@ -410,3 +410,66 @@ a.chip {
 a.chip:hover {
   border-color: var(--accent);
 }
+
+/* --- write-up --- */
+.kicker {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.writeup p {
+  line-height: 1.65;
+}
+
+.writeup-figure {
+  margin: 20px 0 24px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.writeup-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.writeup-pairs,
+.writeup-changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.writeup-pairs li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 12px;
+}
+
+.writeup-pairs li .muted {
+  grid-column: 1;
+  font-size: 0.85rem;
+}
+
+.writeup-pairs li .effect-bar {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.writeup-changes {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  gap: 4px;
+}
+
+.home-writeup {
+  margin: 20px 0 0;
+}
