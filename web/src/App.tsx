@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { dataAsOf, loadMeta } from "./data/meta";
+import { useAsync } from "./lib/hooks";
 
 const links = [
   { to: "/explore", label: "Tag Explorer" },
@@ -13,6 +15,8 @@ const links = [
 
 export function App() {
   const { pathname } = useLocation();
+  const meta = useAsync(loadMeta, []);
+  const asOf = dataAsOf(meta.data);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -37,7 +41,7 @@ export function App() {
         <Outlet />
       </main>
       <footer className="footer muted">
-        Data from the Steam store, collected Nov 2026. Not affiliated with Valve. ·{" "}
+        Data from the Steam store{asOf ? `, as of ${asOf}` : ""}, refreshed monthly. Not affiliated with Valve. ·{" "}
         <NavLink to="/methodology">Methodology</NavLink> ·{" "}
         <a href="https://github.com/LucasTyph/SteamTagAnalysis">Source on GitHub</a>
       </footer>

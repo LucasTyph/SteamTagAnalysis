@@ -337,8 +337,11 @@ first group protects the tracker, which can't recover days it misses.
   reviews, so franchises and big publishers' studios stay apart: 489 developer accounts → 155 groups.
 
 ### D. Keeping it current
-- [ ] **P2.10 Scheduled refresh of the main dataset** (monthly): slim the cached store data so a
+- [x] **P2.10 Scheduled refresh of the main dataset** (monthly): slim the cached store data so a
   runner can refresh it, then re-run build/analyze/export and redeploy, with "data as of" on the site.
+  *No slim cache needed:* a full re-fetch takes ~3 h on a runner (1,000 GetItems batches, 300 developer
+  batches, 5,000 histograms + news in parallel), so `refresh.yml` starts fresh each month, caches its
+  database only to resume a stopped run, and gates publishing on `stp check-export`.
 
 ### E. Presentation
 - [ ] **P2.11 Link previews and metadata**: per-route titles, description, preview image.

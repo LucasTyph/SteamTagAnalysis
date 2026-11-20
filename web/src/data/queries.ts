@@ -3,6 +3,8 @@
 // computed across developers.
 import { query } from "./db";
 import { dataUrl } from "./url";
+
+export { type Meta, loadMeta } from "./meta";
 import { ci90, type Interval } from "./stats";
 
 export interface Tag {
@@ -14,12 +16,6 @@ export interface Tag {
   coef: number | null;
 }
 
-export interface Meta {
-  build: Record<string, unknown>;
-  analysis: Record<string, number | string>;
-  excluded_tags: string[];
-  counts: Record<string, number>;
-}
 
 export interface Filters {
   yearFrom: number | null;
@@ -89,11 +85,6 @@ export function loadTags(): Promise<Tag[]> {
   return tagsPromise;
 }
 
-let metaPromise: Promise<Meta> | null = null;
-export function loadMeta(): Promise<Meta> {
-  metaPromise ??= fetch(dataUrl("meta.json")).then((r) => r.json());
-  return metaPromise;
-}
 
 // --- SQL building ----------------------------------------------------------------
 

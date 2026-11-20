@@ -7,6 +7,7 @@ terminal) and run the same command again to continue.
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -15,7 +16,7 @@ from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, T
 from rich.table import Table
 
 from pipeline import db
-from pipeline.config import DB_PATH, FETCH, steam_api_key
+from pipeline.config import DB_PATH, FETCH, ROOT, steam_api_key
 from pipeline.fetch import applist, items, jobs, perapp, taglist
 from pipeline.fetch.client import FetchError, SteamClient
 from pipeline.fetch.control import RunControl, parse_duration
@@ -190,6 +191,9 @@ def fetch_timelines(
     stale_after: Annotated[
         str | None, typer.Option(help="Re-fetch games older than this, e.g. 30d.")
     ] = None,
+    queue_only: Annotated[
+        bool, typer.Option("--queue-only", help="Queue the games and exit (before parallel runs).")
+    ] = False,
     budget: Budget = None,
     max_requests: MaxRequests = None,
 ):
@@ -203,6 +207,8 @@ def fetch_timelines(
             jobs.retry_failed(conn, kind)
         if stale_after:
             jobs.requeue_stale(conn, kind, parse_duration(stale_after))
+    if queue_only:
+        return
     if stage is not None and stage not in perapp.STAGES:
         raise typer.BadParameter(f"stage must be one of {', '.join(perapp.STAGES)}")
     kinds = [stage] if stage else list(perapp.STAGES)
@@ -318,8 +324,40 @@ def export():
 # --- status & probes ----------------------------------------------------------
 
 
+@app.command("check-export")
+def check_export(
+    previous: Annotated[Path, typer.Option(help="meta.json of the currently published data.")],
+    current: Annotated[Path, typer.Option(help="meta.json of the new export.")] = (
+        ROOT / "web" / "public" / "data" / "meta.json"
+    ),
+):
+    """Refuse a refresh that shrank or broke the data (exit code 1 with the reasons)."""
+    import json
+
+    from pipeline.export import check
+
+    found = check.problems(
+        json.loads(previous.read_text("utf-8")), json.loads(current.read_text("utf-8"))
+    )
+    for p in found:
+        console.print(f"[red]✗[/red] {p}")
+    if found:
+        raise typer.Exit(1)
+    console.print("[green]Export looks sane.[/green]")
+
+
 @app.command()
-def status():
+def status(
+    strict: Annotated[
+        bool,
+        typer.Option(
+            "--strict",
+            help="Exit with an error unless the app list is complete and no jobs are pending "
+            "(and at most --max-failed of any stage failed). For scheduled refreshes.",
+        ),
+    ] = False,
+    max_failed: Annotated[float, typer.Option(help="Allowed failed share per stage.")] = 0.01,
+):
     """Show progress of every fetch stage."""
     conn = db.connect()
     n_apps = conn.execute("SELECT COUNT(*) FROM apps").fetchone()[0]
@@ -336,6 +374,18 @@ def status():
         pct = f"{100 * c[jobs.DONE] / total:.1f}%" if total else "-"
         table.add_row(kind, f"{c[jobs.DONE]:,}", f"{c[jobs.PENDING]:,}", f"{c[jobs.FAILED]:,}", pct)
     console.print(table)
+    if strict:
+        problems = [] if applist.is_complete(conn) else ["app list incomplete"]
+        for kind, c in sorted(jobs.counts(conn).items()):
+            total = sum(c.values())
+            if c[jobs.PENDING]:
+                problems.append(f"{kind}: {c[jobs.PENDING]:,} pending")
+            if total and c[jobs.FAILED] / total > max_failed:
+                problems.append(f"{kind}: {c[jobs.FAILED]:,} failed")
+        if problems:
+            console.print(f"[red]Incomplete:[/red] {'; '.join(problems)}")
+            raise typer.Exit(1)
+        console.print("[green]All stages complete.[/green]")
 
 
 @probe_app.command("items-batch")

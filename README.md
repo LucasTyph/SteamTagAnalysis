@@ -86,6 +86,14 @@ cd web && npm install && npm run dev                  # site at http://localhost
 Tests and lint: `ruff check . && pytest` and `cd web && npm run build`. CI runs both on every push, and pushes to
 `main` deploy the site to GitHub Pages.
 
+## Monthly refresh
+
+A scheduled workflow ([`refresh.yml`](.github/workflows/refresh.yml)) re-collects everything from Steam on the
+2nd of each month (about 3 hours on a GitHub runner), rebuilds and re-analyses it, and checks the result against
+the published data (`stp check-export`: no big drops in games, mixes or timelines; model fit and the
+planted-effect check in range) before committing it and redeploying. A run that stops early caches its database,
+so re-running the workflow that month resumes it. The site footer shows the data's date.
+
 ## Release tracking
 
 A scheduled workflow ([track.yml](.github/workflows/track.yml)) runs every day and follows **every newly released

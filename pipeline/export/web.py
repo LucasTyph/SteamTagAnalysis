@@ -111,6 +111,10 @@ def run(db_path: Path = ANALYSIS_DB_PATH, out_dir: Path = WEB_DATA_DIR) -> dict[
             "tags": len(tags),
             "pairs": con.execute("SELECT COUNT(*) FROM combos WHERE size = 2").fetchone()[0],
             "triples": con.execute("SELECT COUNT(*) FROM combos WHERE size = 3").fetchone()[0],
+            "timeline_games": con.execute(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'timeline_games'"
+            ).fetchone()[0]
+            and con.execute("SELECT COUNT(*) FROM timeline_games").fetchone()[0],
         }
         meta = {
             "build": one("build_info"),

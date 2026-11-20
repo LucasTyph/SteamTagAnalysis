@@ -183,6 +183,11 @@ def run(
         for row in timelines.parse_news(int(key), body)
     ]
 
+    # When the store data was fetched (the newest GetItems response), for "data as of".
+    newest = sqlite_conn.execute(
+        "SELECT MAX(fetched_at) FROM raw_responses WHERE kind = 'items'"
+    ).fetchone()[0]
+    data_as_of = datetime.fromtimestamp(newest, tz=UTC).date().isoformat() if newest else None
     taglist = db.get_raw(sqlite_conn, "taglist", "english")
     if taglist is None:
         raise RuntimeError("Tag list not fetched; run `stp fetch taglist`.")
@@ -265,6 +270,7 @@ def run(
         con.execute(
             "CREATE TABLE build_info AS SELECT ? AS built_at, ? AS min_reviews, "
             "? AS tag_max_rank, ? AS tag_min_share, ? AS studio_groups, ? AS grouped_devs, "
+            "? AS data_as_of, "
             "COUNT(first_review) FILTER (WHERE review_count >= ?) AS launch_dates, "
             "COUNT(*) FILTER (WHERE launch_source = 'first_review' AND review_count >= ?) "
             "AS launch_corrected FROM games",
@@ -275,6 +281,7 @@ def run(
                 cfg.tag_min_share,
                 studio["groups"],
                 studio["grouped_devs"],
+                data_as_of,
                 cfg.min_reviews,
                 cfg.min_reviews,
             ],

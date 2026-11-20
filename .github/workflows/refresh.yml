@@ -1,0 +1,147 @@
+name: Refresh main dataset
+
+# Once a month: re-collect everything from Steam (app list, store data for ~200k apps,
+# developer info, review history and news for the top games), rebuild, re-analyse and
+# export, check the result against the published data, then commit it to main, which
+# redeploys the site. A full run takes about 3 hours.
+#
+# If a run stops early (time budget, Steam outage), its database is cached for the rest
+# of the month: re-run the workflow and it resumes instead of starting over.
+on:
+  schedule:
+    - cron: "17 3 2 * *" # 03:17 UTC on the 2nd of each month
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Fetch, build and check, but don't publish"
+        type: boolean
+        default: false
+      top:
+        description: "Games with review timelines"
+        type: string
+        default: "5000"
+
+permissions:
+  contents: write
+  issues: write # for data-refresh-alert issues
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+env:
+  TOP: ${{ inputs.top || '5000' }}
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7
+
+      # First-review (launch) dates backfilled by the launch-dates workflow.
+      - uses: actions/checkout@v7
+        with:
+          ref: tracking-data
+          path: tracking-data
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -e ".[analysis]"
+
+      - id: month
+        run: echo "ym=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Resume this month's database, if a run already started
+        uses: actions/cache/restore@v6
+        with:
+          path: data/steam.sqlite*
+          key: refresh-${{ steps.month.outputs.ym }}-${{ github.run_id }}
+          restore-keys: refresh-${{ steps.month.outputs.ym }}-
+
+      - name: Fetch store data (app list, tags, items, developers)
+        env:
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+        run: exec stp fetch all --budget 1h30m
+
+      - name: Check store data is complete
+        run: stp status --strict
+
+      - name: Fetch review history and news (in parallel, separate rate limits)
+        run: |
+          stp fetch timelines --top "$TOP" --queue-only
+          stp fetch timelines --top "$TOP" --stage histogram --budget 3h30m > histogram.log 2>&1 &
+          stp fetch timelines --top "$TOP" --stage news --budget 3h30m > news.log 2>&1 &
+          trap 'kill -TERM $(jobs -p) 2>/dev/null; wait' TERM INT
+          wait
+          tail -3 histogram.log news.log
+
+      - name: Check timelines are complete
+        run: stp status --strict
+
+      - name: Save the database for a resumed run
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: data/steam.sqlite*
+          key: refresh-${{ steps.month.outputs.ym }}-${{ github.run_id }}
+
+      - name: Build, analyse and export
+        run: |
+          cp web/public/data/meta.json "$RUNNER_TEMP/previous-meta.json"
+          stp build
+          stp analyze
+          stp export
+
+      - name: Check the export against the published data
+        run: stp check-export --previous "$RUNNER_TEMP/previous-meta.json"
+
+      - name: Commit the new data
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A web/public/data
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -q -m "Data refresh $(date -u +%F)"
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
+            sleep 15
+          done
+          exit 1
+
+      - name: Open or update alert issue
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create data-refresh-alert --color d73a4a --description "Monthly data refresh needs attention" 2>/dev/null || true
+          num=$(gh issue list --label data-refresh-alert --state open --json number --jq '.[0].number')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "Still failing on $(date -u +%F): $RUN_URL"
+          else
+            gh issue create --label data-refresh-alert --title "Monthly data refresh needs attention" --body "The scheduled refresh failed or its checks refused the new data ($(date -u +%F)). The site keeps serving the previous data.
+
+          Run: $RUN_URL
+
+          Re-run the workflow (Actions → Refresh main dataset → Run workflow) to resume from where it stopped this month. This issue closes itself after the next successful refresh."
+          fi
+
+      - name: Close alert after a successful refresh
+        if: success() && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for num in $(gh issue list --label data-refresh-alert --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Resolved: the refresh on $(date -u +%F) succeeded."
+          done

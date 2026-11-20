@@ -4,9 +4,10 @@ on:
   push:
     branches: [main]
     paths: ["web/**", "pipeline/tracking/**", ".github/workflows/deploy.yml"]
-  # Redeploy after each daily tracking run so the New Releases page stays current.
+  # Redeploy after each daily tracking run (New Releases) and each monthly data refresh
+  # (its commits come from GITHUB_TOKEN, which doesn't trigger push workflows).
   workflow_run:
-    workflows: ["Track new releases"]
+    workflows: ["Track new releases", "Refresh main dataset"]
     types: [completed]
   workflow_dispatch:
 
@@ -21,7 +22,7 @@ concurrency:
 
 jobs:
   build:
-    # Skip when a tracking run was cancelled or failed; the last deploy stays up.
+    # Skip when a triggering run was cancelled or failed; the last deploy stays up.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:

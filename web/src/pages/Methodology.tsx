@@ -26,7 +26,7 @@ export function Methodology() {
   const beta = Number(a.prior_beta);
   const priorMean = (100 * alpha) / (alpha + beta);
   const strength = alpha + beta;
-  const built = String(b.built_at ?? "").slice(0, 10);
+  const built = String(b.data_as_of ?? b.built_at ?? "").slice(0, 10);
   const launchDates = Number(b.launch_dates ?? 0);
   const launchCorrected = Number(b.launch_corrected ?? 0);
 
@@ -58,7 +58,8 @@ export function Methodology() {
 
       <h2 id="data">Data</h2>
       <p>
-        All data comes from public Steam store endpoints, collected on {built || "the build date"}:
+        All data comes from public Steam store endpoints. This copy was collected on {built || "the build date"}; a
+        scheduled job re-collects everything and rebuilds the site at the start of each month:
       </p>
       <ul>
         <li>
