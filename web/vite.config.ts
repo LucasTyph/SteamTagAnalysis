@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig, type Plugin } from "vite";
+import type { Plugin } from "vite";
+import { defineConfig } from "vitest/config";
 
 // VITE_BASE controls where the site is served from:
 //   GitHub Pages project site → "/<repo-name>/"
@@ -20,4 +21,6 @@ const siteMeta: Plugin = {
 export default defineConfig({
   base: process.env.VITE_BASE ?? "/",
   plugins: [react(), siteMeta],
+  // Unit tests only; the browser smoke test (e2e/) runs with Playwright.
+  test: { include: ["src/**/*.test.ts"] },
 });

@@ -24,10 +24,37 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v7
+
+      # New Releases data is generated from the tracking-data branch (as in deploy.yml),
+      # so the smoke test covers that page too.
+      - uses: actions/checkout@v7
+        with:
+          ref: tracking-data
+          path: tracking-data
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e . && stp track export --dir tracking-data --out web/public/data/releases
+        working-directory: .
+
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      - name: Unit tests (Vitest)
+        run: npm test
       - run: npm run build
+
+      - name: Browser smoke test (Playwright)
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 7

@@ -31,3 +31,7 @@ web/public/data/releases/
 
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Playwright output
+web/test-results/
+web/playwright-report/

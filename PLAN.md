@@ -352,4 +352,7 @@ first group protects the tracker, which can't recover days it misses.
   publisher-wide review bombs, No Man's Sky's comeback), linked from the README and site.
   On the site at `#/writeup`, dated November 2026 (its argument quotes fixed numbers; its charts read
   the live data), linked from Home, Findings, the footer and the README.
-- [ ] **P2.13 Frontend tests**: Vitest for query/stats helpers and a browser smoke test in CI.
+- [x] **P2.13 Frontend tests**: Vitest for query/stats helpers and a browser smoke test in CI.
+  24 Vitest unit tests (CIs, formatting, timeline windows, URL state, tag pull, and the Explorer's
+  precomputed-vs-live choice against a mocked DuckDB) and an 8-page Playwright smoke test on the
+  production build that fails on any console error. Both run in CI.

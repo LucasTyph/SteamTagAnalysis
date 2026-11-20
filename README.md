@@ -87,7 +87,8 @@ Any fetch can be stopped and resumed by running the same command again. Useful e
 cd web && npm install && npm run dev                  # site at http://localhost:5173
 ```
 
-Tests and lint: `ruff check . && pytest` and `cd web && npm run build`. CI runs both on every push, and pushes to
+Tests and lint: `ruff check . && pytest`, and in `web/`: `npm test` (Vitest unit tests), `npm run build`,
+then `npm run test:e2e` (Playwright smoke test of every page against the build). CI runs both on every push, and pushes to
 `main` deploy the site to GitHub Pages.
 
 ## Monthly refresh
