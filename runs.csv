@@ -1,3 +1,4 @@
 date,duration_s,requests,discovered,rechecked,newly_tracked,tracked,snapshots,histograms,histograms_pending,errors,stop_reason
 2026-11-18,10907,6329,14,0,0,6379,6379,6295,0,0,
 2026-11-19,43,38,35,0,2,6600,6600,2,0,0,
+2026-11-20,325,206,2212,697,158,6758,6757,158,0,0,
