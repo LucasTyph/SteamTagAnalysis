@@ -8,8 +8,10 @@ import { type ComboFinding, type Findings as Data, loadFindings } from "../data/
 import { fmtMonth } from "../data/timelines";
 import { fmtInt, fmtPct, fmtPp } from "../lib/format";
 import { useAsync } from "../lib/hooks";
+import { usePageMeta } from "../lib/pageMeta";
 
 export function Findings() {
+  usePageMeta("Findings", "Eight things 60,000 Steam games say about tag mixes, review bombs and which genres age well.");
   const f = useAsync(loadFindings, []);
   if (f.error) return <ErrorNote error={f.error} />;
   if (!f.data) return <Loading label="Loading findings…" />;

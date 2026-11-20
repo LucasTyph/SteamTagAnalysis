@@ -21,6 +21,7 @@ import { fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { exploreHref, gameHref } from "../lib/urlState";
 import { type TagIndex, useTags } from "../lib/useTags";
+import { usePageMeta } from "../lib/pageMeta";
 
 const STARTERS: [number, string][] = [
   [1145360, "Hades"],
@@ -37,6 +38,7 @@ export function Games() {
   const tags = useTags();
   const meta = useAsync(loadMeta, []);
   const id = appid != null && /^\d+$/.test(appid) ? Number(appid) : null;
+  usePageMeta(appid == null ? "Game Lookup" : undefined);
 
   return (
     <section className="page">
@@ -124,6 +126,12 @@ function Landing() {
 
 function GameView({ appid, tags }: { appid: number; tags: TagIndex }) {
   const detail = useAsync(() => gameDetail(appid), [appid]);
+  usePageMeta(
+    detail.data ? `${detail.data.name} · Game Lookup` : "Game Lookup",
+    detail.data
+      ? `How ${detail.data.name}'s Steam reviews compare with what its tags predict, and the tag mixes it belongs to.`
+      : undefined,
+  );
   if (detail.error) return <ErrorNote error={detail.error} />;
   if (detail.data === undefined) return <Loading label="Loading the game data…" />;
   const g = detail.data;

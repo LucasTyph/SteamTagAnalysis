@@ -17,6 +17,7 @@ import {
 import { fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
 import { gameHref } from "../lib/urlState";
 import { useAsync } from "../lib/hooks";
+import { usePageMeta } from "../lib/pageMeta";
 
 const MAX_GAMES = 4;
 const FEATURED = [
@@ -29,6 +30,7 @@ const FEATURED = [
 ];
 
 export function Timelines() {
+  usePageMeta("Review Timelines");
   const index = useAsync(loadTimelineIndex, []);
   if (index.error) return <ErrorNote error={index.error} />;
   if (!index.data) return <Loading label="Loading timelines…" />;
@@ -48,6 +50,10 @@ function TimelinesView({ games }: { games: TimelineSummary[] }) {
     [params, byId],
   );
   const align = params.get("align") === "launch" ? "launch" : "calendar";
+  usePageMeta(
+    selected.length ? `${selected.map((g) => g.name).join(" vs ")} · Review Timelines` : "Review Timelines",
+    "Month-by-month Steam review scores for the 5,000 most-reviewed games, with turning points and patches.",
+  );
   const smooth = params.get("smooth") !== "0";
 
   const update = (next: { games?: TimelineSummary[]; align?: string; smooth?: boolean }) => {

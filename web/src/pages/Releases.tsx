@@ -15,6 +15,7 @@ import {
 import { NEG, POS, SERIES_COLORS } from "../lib/colors";
 import { fmtInt, fmtPct, fmtPp, steamUrl } from "../lib/format";
 import { useAsync } from "../lib/hooks";
+import { usePageMeta } from "../lib/pageMeta";
 
 const fmtDate = (iso: string | null | undefined) =>
   iso
@@ -27,6 +28,7 @@ const fmtDate = (iso: string | null | undefined) =>
     : "–";
 
 export function Releases() {
+  usePageMeta("New Releases", "Every new Steam game followed day by day for its first year.");
   const data = useAsync(loadReleases, []);
   if (data.error) return <ErrorNote error={data.error} />;
   if (data.loading) return <Loading label="Loading release tracking…" />;

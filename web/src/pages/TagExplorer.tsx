@@ -20,11 +20,13 @@ import { effectTone, fmtInt, fmtPct, fmtPp } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { type TagIndex, useTags } from "../lib/useTags";
 import { gameHref, parseFilters, parseTags, toParams } from "../lib/urlState";
+import { usePageMeta } from "../lib/pageMeta";
 
 const MAX_TAGS = 4;
 const MIN_DEVS = 5;
 
 export function TagExplorer() {
+  usePageMeta("Tag Explorer");
   const tags = useTags();
   if (tags.error) return <ErrorNote error={tags.error} />;
   if (!tags.data) return <Loading label="Loading tags…" />;
@@ -35,6 +37,10 @@ function Explorer({ tags }: { tags: TagIndex }) {
   const [params, setParams] = useSearchParams();
   const selected = useMemo(() => parseTags(params, tags), [params, tags]);
   const filters = useMemo(() => parseFilters(params), [params]);
+  usePageMeta(
+    selected.length ? `${selected.map((t) => t.name).join(" + ")} · Tag Explorer` : "Tag Explorer",
+    "How Steam games with a mix of tags are reviewed, and whether the mix beats its parts.",
+  );
   const update = (t: Tag[], f: Filters) => setParams(toParams(t, f));
 
   return (

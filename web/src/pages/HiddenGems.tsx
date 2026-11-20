@@ -8,8 +8,10 @@ import { fmtInt, fmtPct } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { type TagIndex, useTags } from "../lib/useTags";
 import { exploreHref } from "../lib/urlState";
+import { usePageMeta } from "../lib/pageMeta";
 
 export function HiddenGems() {
+  usePageMeta("Hidden Gems", "Steam tag mixes that beat (or miss) what their tags predict, with confidence intervals and false-discovery control.");
   const tags = useTags();
   if (tags.error) return <ErrorNote error={tags.error} />;
   if (!tags.data) return <Loading label="Loading tags…" />;

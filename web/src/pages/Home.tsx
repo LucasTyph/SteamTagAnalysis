@@ -3,6 +3,7 @@ import { REPO_URL, loadFindings } from "../data/findings";
 import { fmtMonth } from "../data/timelines";
 import { fmtPct, fmtPp } from "../lib/format";
 import { useAsync } from "../lib/hooks";
+import { usePageMeta } from "../lib/pageMeta";
 
 const TOOLS = [
   {
@@ -38,6 +39,7 @@ const TOOLS = [
 ];
 
 export function Home() {
+  usePageMeta(null);
   const f = useAsync(loadFindings, []);
   const d = f.data;
   const best = d?.pairs_best.find((p) => p.score >= 80) ?? d?.pairs_best[0];

@@ -4,6 +4,7 @@ import { REPO_URL, loadFindings } from "../data/findings";
 import { loadMeta } from "../data/queries";
 import { fmtInt } from "../lib/format";
 import { useAsync } from "../lib/hooks";
+import { usePageMeta } from "../lib/pageMeta";
 
 const SECTIONS = [
   ["data", "Data"],
@@ -16,6 +17,7 @@ const SECTIONS = [
 ] as const;
 
 export function Methodology() {
+  usePageMeta("Methodology", "How the Steam data was collected, what each number means, and where it can mislead.");
   const data = useAsync(() => Promise.all([loadMeta(), loadFindings()]), []);
   if (data.error) return <ErrorNote error={data.error} />;
   if (!data.data) return <Loading label="Loading…" />;

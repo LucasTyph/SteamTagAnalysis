@@ -1,4 +1,5 @@
 import { Link, isRouteErrorResponse, useRouteError } from "react-router-dom";
+import { usePageMeta } from "../lib/pageMeta";
 
 export function RouteError() {
   const error = useRouteError();
@@ -21,6 +22,7 @@ export function RouteError() {
 }
 
 export function NotFound() {
+  usePageMeta("Page not found");
   return (
     <section className="page">
       <h1>Page not found</h1>
