@@ -78,7 +78,7 @@ jobs:
           stp fetch timelines --top "$TOP" --stage news --budget 3h30m > news.log 2>&1 &
           trap 'kill -TERM $(jobs -p) 2>/dev/null; wait' TERM INT
           wait
-          tail -3 histogram.log news.log
+          tail -n 3 histogram.log news.log || true
 
       - name: Check timelines are complete
         run: stp status --strict
