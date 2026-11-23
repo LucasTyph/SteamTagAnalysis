@@ -47,6 +47,7 @@ test.describe("every page loads its data", () => {
     await page.getByRole("option").first().click();
     await expect(page).toHaveURL(/#\/games\/\d+/);
     await expect(page.locator(".game-title h2")).toContainText(/Hades/i);
+    await expect(page.locator(".steam-button")).toHaveAttribute("href", /store\.steampowered\.com\/app\/\d+$/);
     await expect(page.locator(".bar-list li").first()).toBeVisible(); // tag effects
     await expect(page.getByRole("heading", { name: "Mixes it belongs to" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Tagged most like it" })).toBeVisible();
