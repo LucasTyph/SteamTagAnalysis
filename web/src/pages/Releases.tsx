@@ -1,6 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { SteamButton } from "../components/SteamButton";
 import { ErrorNote, Loading } from "../components/Loading";
 import {
   type CurvePoint,
@@ -528,9 +529,12 @@ function GameDetail({ appid, games, onClose }: { appid: number; games: ReleaseGa
             `App ${appid}`
           )}
         </h2>
-        <button type="button" className="link" onClick={onClose}>
-          Close
-        </button>
+        <div className="panel-actions">
+          <SteamButton appid={appid} name={game?.name} />
+          <button type="button" className="link" onClick={onClose}>
+            Close
+          </button>
+        </div>
       </div>
       {game && (
         <p className="muted">

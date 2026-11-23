@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { SteamButton } from "../components/SteamButton";
 import { BarList } from "../components/BarList";
 import { EffectBar } from "../components/EffectBar";
 import { GameSearch } from "../components/GameSearch";
@@ -165,16 +166,19 @@ function GameHeader({ game: g, tags }: { game: GameDetail; tags: Tag[] }) {
   return (
     <>
       <div className="game-title">
-        <h2>
-          <a href={steamUrl(g.appid)} target="_blank" rel="noreferrer">
-            {g.name}
-          </a>
-        </h2>
-        <span className="muted">
-          {[g.developer ?? "Unknown developer", g.year, price, g.is_early_access ? "Early access" : null]
-            .filter((x) => x != null)
-            .join(" · ")}
-        </span>
+        <div>
+          <h2>
+            <a href={steamUrl(g.appid)} target="_blank" rel="noreferrer">
+              {g.name}
+            </a>
+          </h2>
+          <span className="muted">
+            {[g.developer ?? "Unknown developer", g.year, price, g.is_early_access ? "Early access" : null]
+              .filter((x) => x != null)
+              .join(" · ")}
+          </span>
+        </div>
+        <SteamButton appid={g.appid} name={g.name} />
       </div>
       <div className="cards">
         <Stat label="Steam rating" value={fmtPct(g.pct_positive, 0)} hint={`${fmtInt(g.review_count)} reviews`} />

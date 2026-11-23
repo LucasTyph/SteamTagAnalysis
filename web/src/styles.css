@@ -718,7 +718,29 @@ td.tone-negative {
 
 /* --- timelines --- */
 .game-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
   margin-bottom: 12px;
+}
+
+.steam-button {
+  flex: none;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.steam-button:hover {
+  border-color: var(--accent);
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .game-title h2 {

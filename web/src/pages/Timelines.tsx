@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { SteamButton } from "../components/SteamButton";
 import { GamePicker } from "../components/GamePicker";
 import { ErrorNote, Loading } from "../components/Loading";
 import { TagCurves } from "../components/TagCurves";
@@ -162,17 +163,20 @@ function GameHeader({ game }: { game: TimelineSummary }) {
   return (
     <>
       <div className="game-title">
-        <h2>
-          <a href={steamUrl(game.appid)} target="_blank" rel="noreferrer">
-            {game.name}
-          </a>
-        </h2>
-        <span className="muted">
-          {game.developer ?? "Unknown developer"} · reviews since {fmtMonth(game.first)} · {fmtInt(game.reviews)}{" "}
-          reviews
-          {game.tags.length ? ` · ${game.tags.join(", ")}` : ""} ·{" "}
-          <Link to={gameHref(game.appid)}>Tags and mixes →</Link>
-        </span>
+        <div>
+          <h2>
+            <a href={steamUrl(game.appid)} target="_blank" rel="noreferrer">
+              {game.name}
+            </a>
+          </h2>
+          <span className="muted">
+            {game.developer ?? "Unknown developer"} · reviews since {fmtMonth(game.first)} · {fmtInt(game.reviews)}{" "}
+            reviews
+            {game.tags.length ? ` · ${game.tags.join(", ")}` : ""} ·{" "}
+            <Link to={gameHref(game.appid)}>Tags and mixes →</Link>
+          </span>
+        </div>
+        <SteamButton appid={game.appid} name={game.name} />
       </div>
       <div className="cards">
         <Stat label="Launch" value={fmtPct(game.launch)} hint={game.launch == null ? "predates Steam reviews" : "first months"} />
